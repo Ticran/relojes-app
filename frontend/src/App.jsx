@@ -1,122 +1,95 @@
-import { useState } from 'react'
-import heroImg from './assets/hero.png'
-import reactLogo from './assets/react.svg'
-import viteLogo from './assets/vite.svg'
-import './App.css'
+import { useState } from 'react';
+import './App.css';
+import Sidebar, { SECTIONS } from './components/Sidebar.jsx';
+import Summary from './components/Summary.jsx';
+import Products from './components/Products.jsx';
+import useProducts from './hooks/useProducts.js';
+
+const SECTION_INFO = {
+  resumen: {
+    title: 'Resumen',
+    description: 'Estado general del negocio según el inventario actual.',
+  },
+  productos: {
+    title: 'Productos',
+    description: 'Administración del catálogo de relojes y accesorios.',
+  },
+  pedidos: {
+    title: 'Pedidos',
+    description: 'Seguimiento de los pedidos recibidos.',
+  },
+  ventas: {
+    title: 'Ventas',
+    description: 'Resumen de las ventas realizadas.',
+  },
+};
 
 function App() {
-  const [count, setCount] = useState(0)
+  const [active, setActive] = useState('resumen');
+  const [menuOpen, setMenuOpen] = useState(false);
+  // Única fuente de verdad del inventario, compartida por Resumen y Productos.
+  const { items, storageWarning, addProduct, updateProduct, removeProduct, adjustStock } = useProducts();
+
+  const current = SECTION_INFO[active];
+  const currentLabel = SECTIONS.find((s) => s.id === active)?.label ?? current.title;
+
+  function handleSelect(id) {
+    setActive(id);
+    setMenuOpen(false);
+  }
 
   return (
-    <>
-      <section id="center">
-        <div className="hero">
-          <img src={heroImg} className="base" width="170" height="179" alt="" />
-          <img src={reactLogo} className="framework" alt="React logo" />
-          <img src={viteLogo} className="vite" alt="Vite logo" />
-        </div>
-        <div>
-          <h1>Get started</h1>
-          <p>
-            Edit <code>src/App.jsx</code> and save to test <code>HMR</code>
+    <div className={menuOpen ? 'layout layout--menu-open' : 'layout'}>
+      <div
+        className="layout__overlay"
+        aria-hidden="true"
+        onClick={() => setMenuOpen(false)}
+      />
+      <Sidebar active={active} onSelect={handleSelect} onClose={() => setMenuOpen(false)} />
+
+      <div className="layout__main">
+        <header className="topbar">
+          <button
+            type="button"
+            className="topbar__menu-btn"
+            onClick={() => setMenuOpen(true)}
+            aria-label="Abrir menú"
+            aria-expanded={menuOpen}
+          >
+            ☰
+          </button>
+          <div>
+            <h1 className="topbar__title">{current.title}</h1>
+            <p className="topbar__subtitle">{current.description}</p>
+          </div>
+        </header>
+
+        <main className="content">
+          {active === 'resumen' ? (
+            <Summary items={items} />
+          ) : active === 'productos' ? (
+            <Products
+              items={items}
+              storageWarning={storageWarning}
+              onCreate={addProduct}
+              onUpdate={updateProduct}
+              onDelete={removeProduct}
+              onAdjustStock={adjustStock}
+            />
+          ) : (
+            <section aria-labelledby="section-title" className="card card--placeholder">
+              <h2 id="section-title">{currentLabel}</h2>
+              <p>Sección en construcción. Próximamente disponible.</p>
+            </section>
+          )}
+          <p className="content__note">
+            Interfaz local de demostración. Todavía no hay autenticación ni conexión con el servidor.
           </p>
-        </div>
-        <button
-          type="button"
-          className="counter"
-          onClick={() => setCount((count) => count + 1)}
-        >
-          Count is {count}
-        </button>
-      </section>
-
-      <div className="ticks"></div>
-
-      <section id="next-steps">
-        <div id="docs">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#documentation-icon"></use>
-          </svg>
-          <h2>Documentation</h2>
-          <p>Your questions, answered</p>
-          <ul>
-            <li>
-              <a href="https://vite.dev/" target="_blank">
-                <img className="logo" src={viteLogo} alt="" />
-                Explore Vite
-              </a>
-            </li>
-            <li>
-              <a href="https://react.dev/" target="_blank">
-                <img className="button-icon" src={reactLogo} alt="" />
-                Learn more
-              </a>
-            </li>
-          </ul>
-        </div>
-        <div id="social">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#social-icon"></use>
-          </svg>
-          <h2>Connect with us</h2>
-          <p>Join the Vite community</p>
-          <ul>
-            <li>
-              <a href="https://github.com/vitejs/vite" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#github-icon"></use>
-                </svg>
-                GitHub
-              </a>
-            </li>
-            <li>
-              <a href="https://chat.vite.dev/" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#discord-icon"></use>
-                </svg>
-                Discord
-              </a>
-            </li>
-            <li>
-              <a href="https://x.com/vite_js" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#x-icon"></use>
-                </svg>
-                X.com
-              </a>
-            </li>
-            <li>
-              <a href="https://bsky.app/profile/vite.dev" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#bluesky-icon"></use>
-                </svg>
-                Bluesky
-              </a>
-            </li>
-          </ul>
-        </div>
-      </section>
-
-      <div className="ticks"></div>
-      <section id="spacer"></section>
-    </>
-  )
+        </main>
+      </div>
+    </div>
+  );
 }
 
-export default App
+export default App;
+

@@ -1,6 +1,7 @@
 const SECTIONS = [
   { id: 'resumen', label: 'Resumen' },
   { id: 'productos', label: 'Productos' },
+  { id: 'movimientos', label: 'Movimientos' },
   { id: 'pedidos', label: 'Pedidos' },
   { id: 'ventas', label: 'Ventas' },
 ];

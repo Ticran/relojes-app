@@ -14,7 +14,7 @@ function formatPrice(value) {
   return `$ ${value.toLocaleString('es-AR')}`;
 }
 
-function Products({ items, storageWarning, onCreate, onUpdate, onDelete, onAdjustStock }) {
+function Products({ items, movements, productsWarning, onCreate, onUpdate, onDelete, onAdjustStock }) {
   // Alta/edición/eliminación/movimientos delegan en el hook compartido (props).
   // Solo filtros, búsqueda, modales y avisos quedan como estado local.
   const [search, setSearch] = useState('');
@@ -79,10 +79,10 @@ function Products({ items, storageWarning, onCreate, onUpdate, onDelete, onAdjus
     setNotice('');
   }
 
-  function handleConfirmMovement(productId, type, quantity, reason) {
+  async function handleConfirmMovement(productId, type, quantity, reason) {
     // onAdjustStock devuelve { ok, error }; el modal decide si cerrar o mostrar el error.
-    const result = onAdjustStock(productId, type, quantity, reason);
-    if (result && result.ok === false) return result;
+    const result = await onAdjustStock(productId, type, quantity, reason);
+    if (result.ok === false) return result;
     const current = items.find((item) => item.id === productId);
     const label = type === 'entrada' ? 'Entrada' : 'Salida';
     setMovementProduct(null);
@@ -117,13 +117,13 @@ function Products({ items, storageWarning, onCreate, onUpdate, onDelete, onAdjus
 
   return (
     <div className="products">
-      {storageWarning === 'corrupt' && (
+      {productsWarning === 'corrupt' && (
         <p className="products__storage-warning" role="alert">
           Los datos guardados en este navegador estaban dañados y se muestran los
           productos iniciales. Tus datos locales no fueron borrados.
         </p>
       )}
-      {storageWarning === 'unavailable' && (
+      {productsWarning === 'unavailable' && (
         <p className="products__storage-warning" role="alert">
           El almacenamiento local no está disponible: los cambios se conservan
           solo mientras la página permanece abierta.
@@ -341,6 +341,7 @@ function Products({ items, storageWarning, onCreate, onUpdate, onDelete, onAdjus
       {deletingProduct && (
         <ConfirmDelete
           product={deletingProduct}
+          movementCount={movements.filter((movement) => movement.productId === deletingProduct.id).length}
           onConfirm={handleConfirmDelete}
           onClose={() => setDeletingProduct(null)}
         />

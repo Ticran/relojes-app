@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { CATEGORIES } from '../data/products.js';
 
 // 'Todas' es solo una opción del filtro, no una categoría válida para un producto.
@@ -57,6 +57,9 @@ function toFormValues(product) {
 function ProductForm({ mode = 'create', initialProduct = null, onSubmit, onClose }) {
   const [values, setValues] = useState(() => toFormValues(initialProduct));
   const [errors, setErrors] = useState({});
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  // Guard síncrono: evita reentrada incluso antes del siguiente renderizado.
+  const submittingRef = useRef(false);
 
   const isEditing = mode === 'edit';
   const title = isEditing ? 'Editar producto' : 'Nuevo producto';
@@ -77,10 +80,21 @@ function ProductForm({ mode = 'create', initialProduct = null, onSubmit, onClose
 
   function handleSubmit(event) {
     event.preventDefault();
+    // Guard de reentrada: el ref refleja el estado ya actualizado en este mismo
+    // tick, por lo que funciona incluso antes del siguiente renderizado.
+    if (submittingRef.current || isSubmitting) return;
     const { errors: nextErrors, parsed } = validate(values);
     setErrors(nextErrors);
+    // El estado de envío NO se activa si la validación local falla.
     if (Object.keys(nextErrors).length > 0) return;
-    onSubmit(parsed);
+    submittingRef.current = true;
+    setIsSubmitting(true);
+    try {
+      onSubmit(parsed);
+    } finally {
+      submittingRef.current = false;
+      setIsSubmitting(false);
+    }
   }
 
   return (
@@ -195,7 +209,12 @@ function ProductForm({ mode = 'create', initialProduct = null, onSubmit, onClose
             <button type="button" className="btn btn--ghost" onClick={onClose}>
               Cancelar
             </button>
-            <button type="submit" className="btn">
+            <button
+              type="submit"
+              className="btn"
+              disabled={isSubmitting}
+              aria-busy={isSubmitting}
+            >
               {submitLabel}
             </button>
           </div>

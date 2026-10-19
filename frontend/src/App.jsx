@@ -3,6 +3,7 @@ import './App.css';
 import Sidebar, { SECTIONS } from './components/Sidebar.jsx';
 import Summary from './components/Summary.jsx';
 import Products from './components/Products.jsx';
+import Movements from './components/Movements.jsx';
 import useProducts from './hooks/useProducts.js';
 
 const SECTION_INFO = {
@@ -13,6 +14,10 @@ const SECTION_INFO = {
   productos: {
     title: 'Productos',
     description: 'Administración del catálogo de relojes y accesorios.',
+  },
+  movimientos: {
+    title: 'Movimientos',
+    description: 'Historial de entradas y salidas de stock.',
   },
   pedidos: {
     title: 'Pedidos',
@@ -28,7 +33,7 @@ function App() {
   const [active, setActive] = useState('resumen');
   const [menuOpen, setMenuOpen] = useState(false);
   // Única fuente de verdad del inventario, compartida por Resumen y Productos.
-  const { items, storageWarning, addProduct, updateProduct, removeProduct, adjustStock } = useProducts();
+  const { items, movements, productsWarning, movementsWarning, addProduct, updateProduct, removeProduct, adjustStock } = useProducts();
 
   const current = SECTION_INFO[active];
   const currentLabel = SECTIONS.find((s) => s.id === active)?.label ?? current.title;
@@ -70,12 +75,15 @@ function App() {
           ) : active === 'productos' ? (
             <Products
               items={items}
-              storageWarning={storageWarning}
+              movements={movements}
+              productsWarning={productsWarning}
               onCreate={addProduct}
               onUpdate={updateProduct}
               onDelete={removeProduct}
               onAdjustStock={adjustStock}
             />
+          ) : active === 'movimientos' ? (
+            <Movements movements={movements} items={items} movementsWarning={movementsWarning} />
           ) : (
             <section aria-labelledby="section-title" className="card card--placeholder">
               <h2 id="section-title">{currentLabel}</h2>

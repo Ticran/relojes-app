@@ -491,6 +491,132 @@
   font-size: 0.9rem;
 }
 
+.movements__storage-warning {
+  background-color: #faf3e3;
+  color: #6b5320;
+  border: 1px solid #e2d3a8;
+  border-radius: var(--radius);
+  padding: 0.7rem 1rem;
+  margin-bottom: 1rem;
+  font-size: 0.9rem;
+}
+
+/* ---------- Movimientos ---------- */
+.movements__filters {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.movements__table-wrap {
+  overflow-x: auto;
+  margin-bottom: 1.5rem;
+}
+
+.movements__table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.movements__table th,
+.movements__table td {
+  text-align: left;
+  padding: 0.6rem 0.75rem;
+  border-bottom: 1px solid var(--piedra);
+  font-size: 0.9rem;
+}
+
+.movements__table th {
+  background-color: var(--marfil);
+  color: var(--carbón);
+  font-weight: 600;
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.movements__badge {
+  border-radius: 999px;
+  padding: 0.25rem 0.7rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+  display: inline-block;
+  border: 1px solid transparent;
+}
+
+.movements__badge--entrada {
+  color: #2f5d33;
+  background-color: #eef4ea;
+  border-color: #cddcc6;
+}
+
+.movements__badge--salida {
+  color: #8c3226;
+  background-color: #f7e9e7;
+  border-color: #e3b8b1;
+}
+
+.movements__badge--removed {
+  color: #5f5a52;
+  background-color: #f1efe9;
+  border-color: #d9d4c5;
+  margin-left: 0.5rem;
+}
+
+.movements__empty {
+  text-align: center;
+  padding: 3rem 1rem;
+  color: #55534e;
+}
+
+.movements__card {
+  border: 1px solid var(--piedra);
+  border-radius: var(--radius);
+  padding: 1rem;
+  margin-bottom: 1rem;
+  background-color: var(--blanco);
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.movements__card__meta {
+  display: flex;
+  gap: 1rem;
+  font-size: 0.85rem;
+  color: #55534e;
+  flex-wrap: wrap;
+}
+
+.movements__card__qty {
+  margin: 0;
+  font-size: 0.9rem;
+  color: var(--carbón);
+}
+
+.movements__card__reason {
+  margin: 0;
+  font-size: 0.9rem;
+  color: var(--carbón);
+  white-space: pre-wrap;
+}
+
+@media (max-width: 700px) {
+  .movements__table-wrap {
+    display: none;
+  }
+  .movements__filters {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (min-width: 701px) {
+  .movements__card {
+    display: none;
+  }
+}
+
 /* ---------- Modal de producto ---------- */
 .modal {
   position: fixed;
@@ -568,6 +694,16 @@
 .field__error {
   font-size: 0.8rem;
   color: #8c3226;
+}
+
+.modal__warning {
+  background-color: #faf3e3;
+  color: #6b5320;
+  border: 1px solid #e2d3a8;
+  border-radius: var(--radius);
+  padding: 0.7rem 1rem;
+  margin: 0.75rem 0 0;
+  font-size: 0.9rem;
 }
 
 .form__actions {

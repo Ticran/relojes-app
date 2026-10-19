@@ -1,7 +1,7 @@
 // Modal para registrar una entrada o salida de stock.
 // Valida en el cliente; el hook `adjustStock` vuelve a validar y
 // devuelve { ok, error } como fuente final de verdad.
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 function validate(values, currentStock) {
   const errors = {};
@@ -28,6 +28,9 @@ function StockMovementForm({ product, onSubmit, onClose }) {
   const [reason, setReason] = useState('');
   const [errors, setErrors] = useState({});
   const [serverError, setServerError] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  // Guard síncrono: evita reentrada incluso antes del siguiente renderizado.
+  const submittingRef = useRef(false);
 
   useEffect(() => {
     function handleKey(event) {
@@ -37,8 +40,10 @@ function StockMovementForm({ product, onSubmit, onClose }) {
     return () => document.removeEventListener('keydown', handleKey);
   }, [onClose]);
 
-  function handleSubmit(event) {
+  async function handleSubmit(event) {
     event.preventDefault();
+    // Guard de reentrada: bloquea dobles envíos antes del siguiente render.
+    if (submittingRef.current || isSubmitting) return;
     setServerError('');
     const { errors: nextErrors, quantity: parsed } = validate(
       { type, quantity },
@@ -46,10 +51,20 @@ function StockMovementForm({ product, onSubmit, onClose }) {
     );
     setErrors(nextErrors);
     if (Object.keys(nextErrors).length > 0) return;
-    // adjustStock es sincrónico: devuelve { ok, error } como verdad final.
-    const result = onSubmit(product.id, type, parsed, reason.trim());
-    if (result && result.ok === false) {
-      setServerError(result.error || 'No se pudo registrar el movimiento.');
+    // adjustStock es asíncrono y serializa las operaciones: devuelve { ok, error }
+    // como verdad final. Nunca informa éxito si el movimiento fue rechazado.
+    submittingRef.current = true;
+    setIsSubmitting(true);
+    try {
+      const result = await onSubmit(product.id, type, parsed, reason.trim());
+      if (result.ok === false) {
+        setServerError(result.error || 'No se pudo registrar el movimiento.');
+      }
+    } catch {
+      setServerError('No se pudo registrar el movimiento.');
+    } finally {
+      submittingRef.current = false;
+      setIsSubmitting(false);
     }
   }
 
@@ -140,7 +155,12 @@ function StockMovementForm({ product, onSubmit, onClose }) {
             <button type="button" className="btn btn--ghost" onClick={onClose}>
               Cancelar
             </button>
-            <button type="submit" className="btn">
+            <button
+              type="submit"
+              className="btn"
+              disabled={isSubmitting}
+              aria-busy={isSubmitting}
+            >
               Confirmar movimiento
             </button>
           </div>

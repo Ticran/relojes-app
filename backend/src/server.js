@@ -1,12 +1,51 @@
+import dotenv from 'dotenv';
 import express from 'express';
+import cors from 'cors';
+
+dotenv.config();
+
+// Pool de conexiones a PostgreSQL (valida DATABASE_URL al importarse)
+import { pool } from './db/pool.js';
 
 const app = express();
 
 // Puerto desde variable de entorno, con valor por defecto 3000
 const PORT = process.env.PORT || 3000;
 
+// ---------------------------------------------------------------------------
+// CORS
+// - Desarrollo: si CORS_ORIGIN no está definida, permitir únicamente
+//   http://localhost:5173.
+// - Producción: exigir CORS_ORIGIN; si falta, no iniciar el servidor.
+// - CORS_ORIGIN se interpreta como lista separada por comas.
+// ---------------------------------------------------------------------------
+const corsOriginRaw = process.env.CORS_ORIGIN;
+const isProduction = process.env.NODE_ENV === 'production';
+
+let corsOrigin;
+
+if (isProduction) {
+  if (!corsOriginRaw) {
+    throw new Error(
+      'CORS_ORIGIN es obligatoria en producción. Defínela en el entorno antes de iniciar el servidor.'
+    );
+  }
+  corsOrigin = corsOriginRaw.split(',').map((s) => s.trim()).filter(Boolean);
+} else {
+  corsOrigin = corsOriginRaw
+    ? corsOriginRaw.split(',').map((s) => s.trim()).filter(Boolean)
+    : 'http://localhost:5173';
+}
+
+app.use(cors({ origin: corsOrigin }));
+
 // Middleware para procesar cuerpos de solicitud en JSON
 app.use(express.json());
+
+// Rutas
+import productsRouter from './routes/products.js';
+
+app.use('/api/products', productsRouter);
 
 // Ruta de salud
 app.get('/api/health', (req, res) => {

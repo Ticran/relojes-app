@@ -44,8 +44,10 @@ app.use(express.json());
 
 // Rutas
 import productsRouter from './routes/products.js';
+import movementsRouter from './routes/movements.js';
 
 app.use('/api/products', productsRouter);
+app.use('/api/movements', movementsRouter);
 
 // Ruta de salud
 app.get('/api/health', (req, res) => {

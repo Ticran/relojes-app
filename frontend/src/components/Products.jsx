@@ -37,8 +37,8 @@ function Products({ items, movements, productsWarning, onCreate, onUpdate, onDel
     });
   }, [items, search, category, availability]);
 
-  function handleCreate(data) {
-    onCreate(data);
+  async function handleCreate(data, imageFile) {
+    await onCreate(data, imageFile);
     // Limpio filtros y búsqueda para que el producto recién creado quede visible.
     setSearch('');
     setCategory('Todas');
@@ -97,20 +97,20 @@ function Products({ items, movements, productsWarning, onCreate, onUpdate, onDel
     setMovementProduct(null);
   }
 
-  function handleConfirmDelete() {
+  async function handleConfirmDelete() {
     // Borrado por id a través del hook compartido.
     // Los filtros se mantienen: si era el último visible, aparece el mensaje de sin coincidencias.
     const name = deletingProduct.name;
-    onDelete(deletingProduct.id);
+    await onDelete(deletingProduct.id);
     setDeletingProduct(null);
     setNotice(`"${name}" se eliminó del inventario.`);
   }
 
-  function handleUpdate(data) {
+  async function handleUpdate(data, imageFile) {
     // Actualización por id a través del hook compartido.
     // Los filtros se mantienen: si el producto editado
     // deja de coincidir, simplemente sale del listado filtrado.
-    onUpdate(editingProduct.id, data);
+    await onUpdate(editingProduct.id, data, imageFile);
     setNotice(`"${data.name}" se actualizó correctamente.`);
     setEditingProduct(null);
   }

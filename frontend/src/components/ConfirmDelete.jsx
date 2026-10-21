@@ -5,12 +5,12 @@ function ConfirmDelete({ product, movementCount = 0, onConfirm, onClose }) {
   // Guard síncrono: evita confirmaciones repetidas antes del siguiente render.
   const deletingRef = useRef(false);
 
-  function handleConfirm() {
+  async function handleConfirm() {
     if (deletingRef.current || isDeleting) return;
     deletingRef.current = true;
     setIsDeleting(true);
     try {
-      onConfirm();
+      await onConfirm();
     } finally {
       // En éxito el diálogo se desmonta; si hubo excepción, este finally
       // reactiva el botón y el usuario puede reintentar.

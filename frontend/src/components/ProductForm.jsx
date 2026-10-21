@@ -62,6 +62,32 @@ function ProductForm({ mode = 'create', initialProduct = null, onSubmit, onClose
   const submittingRef = useRef(false);
 
   const isEditing = mode === 'edit';
+  const [imageFile, setImageFile] = useState(null);
+  const [imagePreview, setImagePreview] = useState(null);
+
+  // Revoca URLs temporales cuando cambian o se desmonta.
+  useEffect(() => {
+    return () => {
+      if (imagePreview) URL.revokeObjectURL(imagePreview);
+    };
+  }, [imagePreview]);
+
+  function handleImageChange(event) {
+    const file = event.target.files && event.target.files[0];
+    if (!file) {
+      setImageFile(null);
+      setImagePreview(null);
+      return;
+    }
+    setImageFile(file);
+    const url = URL.createObjectURL(file);
+    setImagePreview(url);
+  }
+
+  function removeImage() {
+    setImageFile(null);
+    setImagePreview(null);
+  }
   const title = isEditing ? 'Editar producto' : 'Nuevo producto';
   const submitLabel = isEditing ? 'Guardar cambios' : 'Agregar producto';
 
@@ -78,7 +104,7 @@ function ProductForm({ mode = 'create', initialProduct = null, onSubmit, onClose
     setValues((prev) => ({ ...prev, [field]: value }));
   }
 
-  function handleSubmit(event) {
+  async function handleSubmit(event) {
     event.preventDefault();
     // Guard de reentrada: el ref refleja el estado ya actualizado en este mismo
     // tick, por lo que funciona incluso antes del siguiente renderizado.
@@ -90,7 +116,7 @@ function ProductForm({ mode = 'create', initialProduct = null, onSubmit, onClose
     submittingRef.current = true;
     setIsSubmitting(true);
     try {
-      onSubmit(parsed);
+      await onSubmit(parsed, imageFile);
     } finally {
       submittingRef.current = false;
       setIsSubmitting(false);
@@ -205,6 +231,30 @@ function ProductForm({ mode = 'create', initialProduct = null, onSubmit, onClose
               onChange={(event) => set('description', event.target.value)}
             />
           </label>
+          <label className="field" htmlFor="product-image">
+            <span className="field__label">Imagen (opcional)</span>
+            <input
+              id="product-image"
+              type="file"
+              accept="image/jpeg,image/png,image/webp,image/gif"
+              className="field__input"
+              onChange={handleImageChange}
+            />
+          </label>
+          {(imagePreview || initialProduct?.imageUrl) && (
+            <div className="field" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+              <img
+                src={imagePreview || initialProduct.imageUrl}
+                alt="Vista previa"
+                style={{ maxWidth: '120px', maxHeight: '120px', objectFit: 'cover' }}
+              />
+              {imagePreview && (
+                <button type="button" className="btn btn--ghost" onClick={removeImage}>
+                  Quitar
+                </button>
+              )}
+            </div>
+          )}
           <div className="form__actions">
             <button type="button" className="btn btn--ghost" onClick={onClose}>
               Cancelar

@@ -36,12 +36,12 @@ function Movements({ movements, items, movementsWarning }) {
   }, [movements, items, typeFilter, search]);
 
   // Aviso de almacenamiento propio del historial, reutilizado en ambos returns:
-  // si el storage falla, el estado vacío también debe mostrarlo.
+  // si la API falla, el estado vacío también debe mostrarlo.
   const warningNode = movementsWarning ? (
     <p className="movements__storage-warning" role="alert">
-      {movementsWarning === 'corrupt'
-        ? 'Los movimientos guardados en este navegador estaban dañados y se muestra un historial inicial. Tus datos locales no fueron borrados.'
-        : 'El almacenamiento local no está disponible: los movimientos registrados se conservan solo mientras la página permanezca abierta.'}
+      {movementsWarning === 'unavailable'
+        ? 'No se pudieron cargar los movimientos desde el servidor.'
+        : 'Los movimientos guardados en este navegador estaban dañados y se muestra un historial inicial. Tus datos locales no fueron borrados.'}
     </p>
   ) : null;
 

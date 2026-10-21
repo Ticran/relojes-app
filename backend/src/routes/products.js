@@ -1,7 +1,39 @@
 import express from 'express';
+import multer from 'multer';
 import { pool } from '../db/pool.js';
+import { uploadImage, isCloudinaryConfigured, cloudinary } from '../config/cloudinary.js';
 
 const router = express.Router();
+
+// ---------------------------------------------------------------------------
+// Carga de archivos (multipart/form-data)
+// ---------------------------------------------------------------------------
+// Almacenamiento en memoria para validar el contenido real antes de subirlo a
+// Cloudinary. Límite de 5 MB, coherente con el módulo de Cloudinary.
+const upload = multer({
+  storage: multer.memoryStorage(),
+  limits: { fileSize: 5 * 1024 * 1024 },
+});
+
+// Valida los bytes mágicos del archivo para no confiar solo en el MIME declarado.
+function detectImageMimetype(buffer) {
+  if (!buffer || buffer.length < 12) return null;
+  // JPEG
+  if (buffer[0] === 0xff && buffer[1] === 0xd8 && buffer[2] === 0xff) return 'image/jpeg';
+  // PNG
+  if (
+    buffer[0] === 0x89 && buffer[1] === 0x50 && buffer[2] === 0x4e && buffer[3] === 0x47 &&
+    buffer[4] === 0x0d && buffer[5] === 0x0a && buffer[6] === 0x1a && buffer[7] === 0x0a
+  ) return 'image/png';
+  // GIF
+  if (buffer[0] === 0x47 && buffer[1] === 0x49 && buffer[2] === 0x46 && buffer[3] === 0x38) return 'image/gif';
+  // WebP: RIFF....WEBP
+  if (
+    buffer[0] === 0x52 && buffer[1] === 0x49 && buffer[2] === 0x46 && buffer[3] === 0x46 &&
+    buffer[8] === 0x57 && buffer[9] === 0x45 && buffer[10] === 0x42 && buffer[11] === 0x50
+  ) return 'image/webp';
+  return null;
+}
 
 // ---------------------------------------------------------------------------
 // Helpers de validación
@@ -243,8 +275,13 @@ router.get('/:id', async (req, res, next) => {
 // ---------------------------------------------------------------------------
 // POST /api/products
 // ---------------------------------------------------------------------------
-router.post('/', async (req, res, next) => {
-  const validation = validateCreateProduct(req.body);
+router.post('/', upload.single('image'), async (req, res, next) => {
+  // Normaliza campos numéricos que pueden llegar como string en multipart/form-data
+  const body = { ...req.body };
+  if (typeof body.price === 'string') body.price = Number(body.price);
+  if (typeof body.stock === 'string') body.stock = Number(body.stock);
+
+  const validation = validateCreateProduct(body);
   if (!validation.ok) {
     return res.status(400).json({
       error: 'Bad Request',
@@ -253,10 +290,40 @@ router.post('/', async (req, res, next) => {
     });
   }
 
-  const { name, category, price, stock, description, imageUrl, imagePublicId } =
-    validation.data;
+  const data = validation.data;
+
+  // Carga de imagen opcional
+  if (req.file) {
+    const detected = detectImageMimetype(req.file.buffer);
+    if (!detected) {
+      return res.status(400).json({
+        error: 'Bad Request',
+        message: 'El archivo no es una imagen válida (JPEG, PNG, WebP o GIF).',
+      });
+    }
+    if (!isCloudinaryConfigured()) {
+      return res.status(503).json({
+        error: 'Service Unavailable',
+        message:
+          'Cloudinary no está configurado. Define CLOUDINARY_CLOUD_NAME, CLOUDINARY_API_KEY y CLOUDINARY_API_SECRET para habilitar la carga de imágenes.',
+      });
+    }
+    try {
+      const { url, publicId } = await uploadImage(req.file.buffer, { mimetype: detected });
+      data.imageUrl = url;
+      data.imagePublicId = publicId;
+    } catch (err) {
+      return res.status(400).json({
+        error: 'Bad Request',
+        message: err.message || 'No se pudo subir la imagen.',
+      });
+    }
+  }
+
+  const { name, category, price, stock, description, imageUrl, imagePublicId } = data;
 
   try {
+
     const result = await pool.query(
       `INSERT INTO products (name, category, price, stock, description, image_url, image_public_id)
        VALUES ($1, $2, $3, $4, $5, $6, $7)
@@ -274,7 +341,7 @@ router.post('/', async (req, res, next) => {
 // ---------------------------------------------------------------------------
 // PUT /api/products/:id
 // ---------------------------------------------------------------------------
-router.put('/:id', async (req, res, next) => {
+router.put('/:id', upload.single('image'), async (req, res, next) => {
   const productId = validateProductId(req.params.id);
   if (productId === null) {
     return res.status(400).json({
@@ -283,7 +350,12 @@ router.put('/:id', async (req, res, next) => {
     });
   }
 
-  const validation = validateUpdateProduct(req.body);
+  // Normaliza campos numéricos que pueden llegar como string en multipart/form-data
+  const body = { ...req.body };
+  if (typeof body.price === 'string') body.price = Number(body.price);
+  if (typeof body.stock === 'string') body.stock = Number(body.stock);
+
+  const validation = validateUpdateProduct(body);
   if (!validation.ok) {
     return res.status(400).json({
       error: 'Bad Request',
@@ -292,12 +364,42 @@ router.put('/:id', async (req, res, next) => {
     });
   }
 
-  const { data } = validation;
+  const data = validation.data;
+
+  // Carga de imagen opcional (reemplaza la anterior)
+  let oldPublicId = null;
+  if (req.file) {
+    const detected = detectImageMimetype(req.file.buffer);
+    if (!detected) {
+      return res.status(400).json({
+        error: 'Bad Request',
+        message: 'El archivo no es una imagen válida (JPEG, PNG, WebP o GIF).',
+      });
+    }
+    if (!isCloudinaryConfigured()) {
+      return res.status(503).json({
+        error: 'Service Unavailable',
+        message:
+          'Cloudinary no está configurado. Define CLOUDINARY_CLOUD_NAME, CLOUDINARY_API_KEY y CLOUDINARY_API_SECRET para habilitar la carga de imágenes.',
+      });
+    }
+    try {
+      const { url, publicId } = await uploadImage(req.file.buffer, { mimetype: detected });
+      data.imageUrl = url;
+      data.imagePublicId = publicId;
+    } catch (err) {
+      return res.status(400).json({
+        error: 'Bad Request',
+        message: err.message || 'No se pudo subir la imagen.',
+      });
+    }
+  }
+
   const fields = Object.keys(data);
 
   try {
     const existing = await pool.query(
-      'SELECT id FROM products WHERE id = $1 FOR UPDATE',
+      'SELECT id, image_public_id FROM products WHERE id = $1 FOR UPDATE',
       [productId]
     );
 
@@ -307,6 +409,8 @@ router.put('/:id', async (req, res, next) => {
         message: `No existe un producto con el id ${productId}.`,
       });
     }
+
+    oldPublicId = existing.rows[0].image_public_id;
 
     const setClauses = [];
     const values = [];
@@ -341,6 +445,17 @@ router.put('/:id', async (req, res, next) => {
 
     const result = await pool.query(query, values);
     const updated = mapProduct(result.rows[0]);
+
+    // Elimina la imagen anterior de Cloudinary solo tras éxito de BD.
+    // Best-effort: un fallo de Cloudinary no invalida la actualización.
+    if (req.file && oldPublicId && oldPublicId !== data.imagePublicId) {
+      try {
+        await cloudinary.uploader.destroy(oldPublicId);
+      } catch (err) {
+        console.error('No se pudo eliminar la imagen anterior de Cloudinary:', err.message);
+      }
+    }
+
     res.json(updated);
   } catch (err) {
     next(err);
@@ -364,7 +479,7 @@ router.delete('/:id', async (req, res, next) => {
     await client.query('BEGIN');
 
     const product = await client.query(
-      'SELECT id, stock FROM products WHERE id = $1 FOR UPDATE',
+      'SELECT id, stock, image_public_id FROM products WHERE id = $1 FOR UPDATE',
       [productId]
     );
 
@@ -377,10 +492,22 @@ router.delete('/:id', async (req, res, next) => {
     }
 
     const discardedStock = product.rows[0].stock;
+    const imagePublicId = product.rows[0].image_public_id;
 
     await client.query('DELETE FROM products WHERE id = $1', [productId]);
 
     await client.query('COMMIT');
+
+    // Elimina la imagen asociada de Cloudinary tras commit exitoso (best-effort).
+    // Si falla, el producto ya fue eliminado de BD; la imagen queda huérfana
+    // y puede limpiarse manualmente con el publicId.
+    if (imagePublicId) {
+      try {
+        await cloudinary.uploader.destroy(imagePublicId);
+      } catch (err) {
+        console.error('No se pudo eliminar la imagen de Cloudinary:', err.message);
+      }
+    }
 
     const response = {
       deleted: true,

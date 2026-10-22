@@ -81,13 +81,24 @@ function mapProduct(row) {
 }
 
 function validateCreateProduct(body) {
+  if (!body || typeof body !== 'object' || Array.isArray(body)) {
+    return {
+      ok: false,
+      error: 'El cuerpo de la solicitud debe ser un objeto JSON.',
+    };
+  }
+
   const errors = {};
 
   if (!isNonEmptyString(body.name)) {
     errors.name = 'El nombre es obligatorio y no debe estar vacío.';
+  } else if (body.name.trim().length > 120) {
+    errors.name = 'El nombre no debe superar 120 caracteres.';
   }
   if (!isNonEmptyString(body.category)) {
     errors.category = 'La categoría es obligatoria y no debe estar vacía.';
+  } else if (body.category.trim().length > 60) {
+    errors.category = 'La categoría no debe superar 60 caracteres.';
   }
   if (!isPositiveFiniteNumber(body.price)) {
     errors.price = 'El precio debe ser un número mayor que cero.';
@@ -97,12 +108,18 @@ function validateCreateProduct(body) {
   }
   if (body.description !== undefined && typeof body.description !== 'string') {
     errors.description = 'La descripción debe ser una cadena de texto.';
+  } else if (body.description !== undefined && body.description.length > 1000) {
+    errors.description = 'La descripción no debe superar 1000 caracteres.';
   }
   if (body.imageUrl !== undefined && !isNullOrString(body.imageUrl)) {
     errors.imageUrl = 'La URL de la imagen debe ser una cadena o null.';
+  } else if (body.imageUrl !== undefined && typeof body.imageUrl === 'string' && body.imageUrl.length > 2048) {
+    errors.imageUrl = 'La URL de la imagen no debe superar 2048 caracteres.';
   }
   if (body.imagePublicId !== undefined && !isNullOrString(body.imagePublicId)) {
     errors.imagePublicId = 'El public_id de la imagen debe ser una cadena o null.';
+  } else if (body.imagePublicId !== undefined && typeof body.imagePublicId === 'string' && body.imagePublicId.length > 2048) {
+    errors.imagePublicId = 'El public_id de la imagen no debe superar 2048 caracteres.';
   }
 
   const serverManaged = ['id', 'createdAt', 'updatedAt'];
@@ -160,14 +177,20 @@ function validateUpdateProduct(body) {
 
     if (key === 'name' && !isNonEmptyString(value)) {
       errors.name = 'El nombre no debe estar vacío.';
+    } else if (key === 'name' && value.trim().length > 120) {
+      errors.name = 'El nombre no debe superar 120 caracteres.';
     } else if (key === 'category' && !isNonEmptyString(value)) {
       errors.category = 'La categoría no debe estar vacía.';
+    } else if (key === 'category' && value.trim().length > 60) {
+      errors.category = 'La categoría no debe superar 60 caracteres.';
     } else if (key === 'price' && !isPositiveFiniteNumber(value)) {
       errors.price = 'El precio debe ser un número mayor que cero.';
     } else if (key === 'stock' && !isNonNegativeInteger(value)) {
       errors.stock = 'El stock debe ser un entero mayor o igual a cero.';
     } else if (key === 'description' && typeof value !== 'string') {
       errors.description = 'La descripción debe ser una cadena de texto.';
+    } else if (key === 'description' && value.length > 1000) {
+      errors.description = 'La descripción no debe superar 1000 caracteres.';
     } else if (
       key === 'imageUrl' &&
       value !== undefined &&
@@ -175,11 +198,23 @@ function validateUpdateProduct(body) {
     ) {
       errors.imageUrl = 'La URL de la imagen debe ser una cadena o null.';
     } else if (
+      key === 'imageUrl' &&
+      typeof value === 'string' &&
+      value.length > 2048
+    ) {
+      errors.imageUrl = 'La URL de la imagen no debe superar 2048 caracteres.';
+    } else if (
       key === 'imagePublicId' &&
       value !== undefined &&
       !isNullOrString(value)
     ) {
       errors.imagePublicId = 'El public_id de la imagen debe ser una cadena o null.';
+    } else if (
+      key === 'imagePublicId' &&
+      typeof value === 'string' &&
+      value.length > 2048
+    ) {
+      errors.imagePublicId = 'El public_id de la imagen no debe superar 2048 caracteres.';
     } else {
       data[key] = value;
     }

@@ -213,13 +213,23 @@ function Products({ items, movements, productsWarning, onCreate, onUpdate, onDel
                     <tr key={product.id}>
                       <td>
                         <div className="product-cell">
-                          <span className="product-thumb" aria-hidden="true">
-                            <svg viewBox="0 0 32 32">
-                              <circle cx="16" cy="16" r="10" fill="none" stroke="#B49A64" strokeWidth="2" />
-                              <line x1="16" y1="16" x2="16" y2="10" stroke="#20201E" strokeWidth="2" strokeLinecap="round" />
-                              <line x1="16" y1="16" x2="20" y2="18" stroke="#20201E" strokeWidth="2" strokeLinecap="round" />
-                            </svg>
-                          </span>
+                          {product.imageUrl ? (
+                            <img
+                              className="product-thumb product-thumb--image"
+                              src={product.imageUrl}
+                              alt={`Imagen de ${product.name}`}
+                              loading="lazy"
+                              onError={(e) => { e.currentTarget.style.display = 'none'; }}
+                            />
+                          ) : (
+                            <span className="product-thumb" aria-hidden="true">
+                              <svg viewBox="0 0 32 32">
+                                <circle cx="16" cy="16" r="10" fill="none" stroke="#B49A64" strokeWidth="2" />
+                                <line x1="16" y1="16" x2="16" y2="10" stroke="#20201E" strokeWidth="2" strokeLinecap="round" />
+                                <line x1="16" y1="16" x2="20" y2="18" stroke="#20201E" strokeWidth="2" strokeLinecap="round" />
+                              </svg>
+                            </span>
+                          )}
                           <span>{product.name}</span>
                         </div>
                       </td>
@@ -269,13 +279,23 @@ function Products({ items, movements, productsWarning, onCreate, onUpdate, onDel
               return (
                 <li key={product.id} className="card product-card">
                   <div className="product-cell">
-                    <span className="product-thumb" aria-hidden="true">
-                      <svg viewBox="0 0 32 32">
-                        <circle cx="16" cy="16" r="10" fill="none" stroke="#B49A64" strokeWidth="2" />
-                        <line x1="16" y1="16" x2="16" y2="10" stroke="#20201E" strokeWidth="2" strokeLinecap="round" />
-                        <line x1="16" y1="16" x2="20" y2="18" stroke="#20201E" strokeWidth="2" strokeLinecap="round" />
-                      </svg>
-                    </span>
+                    {product.imageUrl ? (
+                      <img
+                        className="product-thumb product-thumb--image"
+                        src={product.imageUrl}
+                        alt={`Imagen de ${product.name}`}
+                        loading="lazy"
+                        onError={(e) => { e.currentTarget.style.display = 'none'; }}
+                      />
+                    ) : (
+                      <span className="product-thumb" aria-hidden="true">
+                        <svg viewBox="0 0 32 32">
+                          <circle cx="16" cy="16" r="10" fill="none" stroke="#B49A64" strokeWidth="2" />
+                          <line x1="16" y1="16" x2="16" y2="10" stroke="#20201E" strokeWidth="2" strokeLinecap="round" />
+                          <line x1="16" y1="16" x2="20" y2="18" stroke="#20201E" strokeWidth="2" strokeLinecap="round" />
+                        </svg>
+                      </span>
+                    )}
                     <div>
                       <p className="product-card__name">{product.name}</p>
                       <p className="product-card__meta">{product.category}</p>

@@ -356,6 +356,10 @@
   height: 1.6rem;
 }
 
+.product-thumb--image {
+  object-fit: cover;
+}
+
 .badge {
   display: inline-block;
   font-size: 0.8rem;

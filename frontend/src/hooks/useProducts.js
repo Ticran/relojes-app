@@ -25,7 +25,7 @@ function isValidStock(value) {
   );
 }
 
-function useProducts() {
+function useProducts(userId) {
   // Estado único: productos y movimientos viajan juntos.
   // Los productos y movimientos empiezan vacíos y se cargan de la API al montar.
   const [inventory, setInventory] = useState({ items: [], movements: [] });
@@ -37,8 +37,19 @@ function useProducts() {
   // Carga inicial de productos y movimientos desde la API
   // -----------------------------------------------------------------------
   useEffect(() => {
+    // Si no hay usuario autenticado, limpiar datos privados y no cargar.
+    if (!userId) {
+      setInventory({ items: [], movements: [] });
+      setHydrated(false);
+      setProductsWarning('');
+      setMovementsWarning('');
+      return;
+    }
     let cancelled = false;
     async function loadInventory() {
+      setInventory({ items: [], movements: [] });
+      setProductsWarning('');
+      setMovementsWarning('');
       try {
         const products = await getProducts();
         if (!cancelled) setInventory((prev) => ({ ...prev, items: products }));
@@ -57,7 +68,7 @@ function useProducts() {
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [userId]);
 
   const items = inventory.items;
   const movements = inventory.movements;

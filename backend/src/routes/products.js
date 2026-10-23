@@ -3,7 +3,12 @@ import multer from 'multer';
 import { pool } from '../db/pool.js';
 import { uploadImage, isCloudinaryConfigured, cloudinary } from '../config/cloudinary.js';
 
+import { requireAuth } from '../middleware/auth.js';
+
 const router = express.Router();
+
+// Todas las rutas de productos requieren autenticación.
+router.use(requireAuth);
 
 // ---------------------------------------------------------------------------
 // Carga de archivos (multipart/form-data)
@@ -253,7 +258,9 @@ router.get('/', async (req, res, next) => {
         created_at,
         updated_at
       FROM products
-      ORDER BY id DESC`
+      WHERE owner_id = $1
+      ORDER BY id DESC`,
+      [req.user.id]
     );
 
     const products = result.rows.map(mapProduct);
@@ -289,8 +296,8 @@ router.get('/:id', async (req, res, next) => {
         created_at,
         updated_at
       FROM products
-      WHERE id = $1`,
-      [productId]
+      WHERE id = $1 AND owner_id = $2`,
+      [productId, req.user.id]
     );
 
     if (result.rows.length === 0) {
@@ -360,10 +367,10 @@ router.post('/', upload.single('image'), async (req, res, next) => {
   try {
 
     const result = await pool.query(
-      `INSERT INTO products (name, category, price, stock, description, image_url, image_public_id)
-       VALUES ($1, $2, $3, $4, $5, $6, $7)
-       RETURNING id, name, category, price, stock, description, image_url, image_public_id, created_at, updated_at`,
-      [name.trim(), category.trim(), price, stock ?? 0, description ?? '', imageUrl ?? null, imagePublicId ?? null]
+      `INSERT INTO products (owner_id, name, category, price, stock, description, image_url, image_public_id)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+       RETURNING id, owner_id, name, category, price, stock, description, image_url, image_public_id, created_at, updated_at`,
+      [req.user.id, name.trim(), category.trim(), price, stock ?? 0, description ?? '', imageUrl ?? null, imagePublicId ?? null]
     );
 
     const created = mapProduct(result.rows[0]);
@@ -434,8 +441,8 @@ router.put('/:id', upload.single('image'), async (req, res, next) => {
 
   try {
     const existing = await pool.query(
-      'SELECT id, image_public_id FROM products WHERE id = $1 FOR UPDATE',
-      [productId]
+      'SELECT id, image_public_id FROM products WHERE id = $1 AND owner_id = $2 FOR UPDATE',
+      [productId, req.user.id]
     );
 
     if (existing.rows.length === 0) {
@@ -470,11 +477,12 @@ router.put('/:id', upload.single('image'), async (req, res, next) => {
 
     setClauses.push(`updated_at = now()`);
     values.push(productId);
+    values.push(req.user.id);
 
     const query = `
       UPDATE products
       SET ${setClauses.join(', ')}
-      WHERE id = $${paramIndex}
+      WHERE id = $${paramIndex} AND owner_id = $${paramIndex + 1}
       RETURNING id, name, category, price, stock, description, image_url, image_public_id, created_at, updated_at
     `;
 
@@ -514,8 +522,8 @@ router.delete('/:id', async (req, res, next) => {
     await client.query('BEGIN');
 
     const product = await client.query(
-      'SELECT id, stock, image_public_id FROM products WHERE id = $1 FOR UPDATE',
-      [productId]
+      'SELECT id, stock, image_public_id FROM products WHERE id = $1 AND owner_id = $2 FOR UPDATE',
+      [productId, req.user.id]
     );
 
     if (product.rows.length === 0) {
@@ -529,7 +537,7 @@ router.delete('/:id', async (req, res, next) => {
     const discardedStock = product.rows[0].stock;
     const imagePublicId = product.rows[0].image_public_id;
 
-    await client.query('DELETE FROM products WHERE id = $1', [productId]);
+    await client.query('DELETE FROM products WHERE id = $1 AND owner_id = $2', [productId, req.user.id]);
 
     await client.query('COMMIT');
 

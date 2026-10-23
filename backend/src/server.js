@@ -1,6 +1,8 @@
 import dotenv from 'dotenv';
 import express from 'express';
 import cors from 'cors';
+import session from 'express-session';
+import pgSession from 'connect-pg-simple';
 
 dotenv.config();
 
@@ -9,8 +11,15 @@ import { pool } from './db/pool.js';
 
 const app = express();
 
-// Puerto desde variable de entorno, con valor por defecto 3000
 const PORT = process.env.PORT || 3000;
+const isProduction = process.env.NODE_ENV === 'production';
+
+// Trust proxy: habilitar solo en producción cuando se despliegue detrás de un
+// proxy confiable (Render, Heroku, etc.) y la variable TRUST_PROXY=1 esté
+// definida. En desarrollo (y por defecto) permanece desactivado.
+if (isProduction && process.env.TRUST_PROXY === '1') {
+  app.set('trust proxy', 1);
+}
 
 // ---------------------------------------------------------------------------
 // CORS
@@ -18,9 +27,9 @@ const PORT = process.env.PORT || 3000;
 //   http://localhost:5173.
 // - Producción: exigir CORS_ORIGIN; si falta, no iniciar el servidor.
 // - CORS_ORIGIN se interpreta como lista separada por comas.
+// - credentials: true para permitir cookies de sesión cross-origin.
 // ---------------------------------------------------------------------------
 const corsOriginRaw = process.env.CORS_ORIGIN;
-const isProduction = process.env.NODE_ENV === 'production';
 
 let corsOrigin;
 
@@ -37,15 +46,56 @@ if (isProduction) {
     : 'http://localhost:5173';
 }
 
-app.use(cors({ origin: corsOrigin }));
+app.use(cors({ origin: corsOrigin, credentials: true }));
 
 // Middleware para procesar cuerpos de solicitud en JSON
 app.use(express.json());
 
+// ---------------------------------------------------------------------------
+// Sesiones (persistidas en PostgreSQL mediante connect-pg-simple)
+// ---------------------------------------------------------------------------
+const PgSession = pgSession(session);
+
+if (!process.env.SESSION_SECRET) {
+  if (isProduction) {
+    throw new Error('SESSION_SECRET es obligatoria en producción.');
+  }
+  console.warn('ADVERTENCIA: SESSION_SECRET no definida; usando valor inseguro solo para desarrollo.');
+}
+
+const sessionStore = new PgSession({
+  pool,
+  tableName: 'user_sessions',
+  createTableIfMissing: true,
+});
+
+// Manejo explícito de errores del almacén de sesiones (PostgreSQL).
+// No se registran secretos, cookies ni datos sensibles.
+sessionStore.on('error', (err) => {
+  console.error('Error en el almacén de sesiones:', err && err.message);
+});
+
+app.use(
+  session({
+    store: sessionStore,
+    secret: process.env.SESSION_SECRET || 'dev-insecure-secret-change-me',
+    resave: false,
+    saveUninitialized: false,
+    cookie: {
+      httpOnly: true,
+      sameSite: isProduction ? 'none' : 'lax',
+      secure: isProduction,
+      maxAge: 1000 * 60 * 60 * 24, // 1 día
+    },
+  })
+);
+
 // Rutas
+import authRouter from './routes/auth.js';
 import productsRouter from './routes/products.js';
 import movementsRouter from './routes/movements.js';
 
+app.use('/api/auth', authRouter);
 app.use('/api/products', productsRouter);
 app.use('/api/movements', movementsRouter);
 

@@ -44,6 +44,7 @@ async function request(path, options = {}) {
 
   const config = {
     ...options,
+    credentials: 'include',
     headers,
     body: isFormData
       ? options.body
@@ -132,4 +133,4 @@ export async function createMovement(data) {
   });
 }
 
-export { ApiError };
+export { ApiError, request };

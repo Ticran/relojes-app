@@ -1,7 +1,12 @@
 import express from 'express';
 import { pool } from '../db/pool.js';
 
+import { requireAuth } from '../middleware/auth.js';
+
 const router = express.Router();
+
+// Todas las rutas de movimientos requieren autenticación.
+router.use(requireAuth);
 
 // ---------------------------------------------------------------------------
 // Helpers de validación
@@ -134,7 +139,9 @@ router.get('/', async (req, res, next) => {
         reason,
         created_at
       FROM stock_movements
-      ORDER BY created_at DESC, id DESC`
+      WHERE owner_id = $1
+      ORDER BY created_at DESC, id DESC`,
+      [req.user.id]
     );
 
     const movements = result.rows.map(mapMovement);
@@ -164,8 +171,8 @@ router.post('/', async (req, res, next) => {
     await client.query('BEGIN');
 
     const product = await client.query(
-      'SELECT id, stock, name FROM products WHERE id = $1 FOR UPDATE',
-      [productId]
+      'SELECT id, stock, name FROM products WHERE id = $1 AND owner_id = $2 FOR UPDATE',
+      [productId, req.user.id]
     );
 
     if (product.rows.length === 0) {
@@ -194,15 +201,15 @@ router.post('/', async (req, res, next) => {
     }
 
     await client.query(
-      'UPDATE products SET stock = $1, updated_at = now() WHERE id = $2',
-      [newStock, productId]
+      'UPDATE products SET stock = $1, updated_at = now() WHERE id = $2 AND owner_id = $3',
+      [newStock, productId, req.user.id]
     );
 
     const movementResult = await client.query(
-      `INSERT INTO stock_movements (product_id, product_name, type, quantity, reason)
-       VALUES ($1, $2, $3, $4, $5)
+      `INSERT INTO stock_movements (owner_id, product_id, product_name, type, quantity, reason)
+       VALUES ($1, $2, $3, $4, $5, $6)
        RETURNING id, product_id, product_name, type, quantity, reason, created_at`,
-      [productId, productName, type, quantity, reason]
+      [req.user.id, productId, productName, type, quantity, reason]
     );
 
     await client.query('COMMIT');

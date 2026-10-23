@@ -6,7 +6,7 @@ const SECTIONS = [
   { id: 'ventas', label: 'Ventas' },
 ];
 
-function Sidebar({ active, onSelect, onClose }) {
+function Sidebar({ active, onSelect, onClose, user, onLogout }) {
   return (
     <aside className="sidebar" aria-label="Navegación del panel">
       <div className="sidebar__brand">
@@ -58,6 +58,32 @@ function Sidebar({ active, onSelect, onClose }) {
           ))}
         </ul>
       </nav>
+
+      <div className="sidebar__footer">
+        <div className="sidebar__divider" />
+        {user && (
+          <div className="sidebar__user">
+            <span className="sidebar__username">{user.username}</span>
+            {user.role && <span className="sidebar__role">{user.role}</span>}
+          </div>
+        )}
+        <button
+          type="button"
+          className="sidebar__logout"
+          onClick={onLogout}
+        >
+          <svg
+            className="sidebar__logout-icon"
+            viewBox="0 0 24 24"
+            role="img"
+            aria-hidden="true"
+          >
+            <path d="M5 4h8v2H7v12h6v2H5z" />
+            <path d="M11 11h6l-2-2 .7.7L17.7 12l-2 2L15 12.7l2-2H11z" />
+          </svg>
+          <span>Cerrar sesión</span>
+        </button>
+      </div>
     </aside>
   );
 }

@@ -758,6 +758,72 @@
   }
 }
 
+/* ---------- Pie del sidebar (cerrar sesión) ---------- */
+.sidebar__footer {
+  margin-top: auto;
+  padding-top: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.sidebar__divider {
+  height: 1px;
+  background-color: rgba(180, 154, 100, 0.25);
+  margin-bottom: 0.25rem;
+}
+
+.sidebar__user {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  padding: 0 0.75rem;
+}
+
+.sidebar__username {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--marfil);
+}
+
+.sidebar__role {
+  font-size: 0.75rem;
+  color: var(--dorado-apagado);
+  text-transform: capitalize;
+}
+
+.sidebar__logout {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  width: 100%;
+  text-align: left;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: var(--radius);
+  color: var(--marfil);
+  padding: 0.65rem 0.75rem;
+  font-size: 0.95rem;
+  transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+.sidebar__logout:hover {
+  background-color: rgba(180, 154, 100, 0.15);
+}
+
+.sidebar__logout:focus-visible {
+  outline: 2px solid var(--dorado-apagado);
+  outline-offset: 2px;
+}
+
+.sidebar__logout-icon {
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+  fill: currentColor;
+}
+
+
 /* ---------- Responsive móvil ---------- */
 @media (max-width: 820px) {
   .sidebar {

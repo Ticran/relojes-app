@@ -93,7 +93,7 @@ function App() {
         aria-hidden="true"
         onClick={() => setMenuOpen(false)}
       />
-      <Sidebar active={active} onSelect={handleSelect} onClose={() => setMenuOpen(false)} />
+      <Sidebar active={active} onSelect={handleSelect} onClose={() => setMenuOpen(false)} user={user} onLogout={handleLogout} />
 
       <div className="layout__main">
         <header className="topbar">
@@ -109,10 +109,6 @@ function App() {
           <div>
             <h1 className="topbar__title">{current.title}</h1>
             <p className="topbar__subtitle">{current.description}</p>
-          </div>
-          <div className="topbar__user">
-            <span>{user.username}</span>
-            <button type="button" onClick={handleLogout}>Cerrar sesión</button>
           </div>
         </header>
 

@@ -1,11 +1,13 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useContext } from 'react';
 import './App.css';
 import Sidebar, { SECTIONS } from './components/Sidebar.jsx';
 import Summary from './components/Summary.jsx';
 import Products from './components/Products.jsx';
 import Movements from './components/Movements.jsx';
 import Login from './components/Login.jsx';
+import ToastContainer from './components/ToastContainer.jsx';
 import useProducts from './hooks/useProducts.js';
+import { ToastProvider, ToastContext } from './context/ToastContext.jsx';
 import { login as doLogin, logout as doLogout, getCurrentUser } from './services/auth.js';
 
 const SECTION_INFO = {
@@ -86,56 +88,64 @@ function App() {
     setMenuOpen(false);
   }
 
+  function ToastHost() {
+    const { toasts, dismiss } = useContext(ToastContext);
+    return <ToastContainer toasts={toasts} dismiss={dismiss} />;
+  }
+
   return (
-    <div className={menuOpen ? 'layout layout--menu-open' : 'layout'}>
-      <div
-        className="layout__overlay"
-        aria-hidden="true"
-        onClick={() => setMenuOpen(false)}
-      />
-      <Sidebar active={active} onSelect={handleSelect} onClose={() => setMenuOpen(false)} user={user} onLogout={handleLogout} />
+    <ToastProvider>
+      <div className={menuOpen ? 'layout layout--menu-open' : 'layout'}>
+        <div
+          className="layout__overlay"
+          aria-hidden="true"
+          onClick={() => setMenuOpen(false)}
+        />
+        <Sidebar active={active} onSelect={handleSelect} onClose={() => setMenuOpen(false)} user={user} onLogout={handleLogout} />
 
-      <div className="layout__main">
-        <header className="topbar">
-          <button
-            type="button"
-            className="topbar__menu-btn"
-            onClick={() => setMenuOpen(true)}
-            aria-label="Abrir menú"
-            aria-expanded={menuOpen}
-          >
-            ☰
-          </button>
-          <div>
-            <h1 className="topbar__title">{current.title}</h1>
-            <p className="topbar__subtitle">{current.description}</p>
-          </div>
-        </header>
+        <div className="layout__main">
+          <header className="topbar">
+            <button
+              type="button"
+              className="topbar__menu-btn"
+              onClick={() => setMenuOpen(true)}
+              aria-label="Abrir menú"
+              aria-expanded={menuOpen}
+            >
+              ☰
+            </button>
+            <div>
+              <h1 className="topbar__title">{current.title}</h1>
+              <p className="topbar__subtitle">{current.description}</p>
+            </div>
+          </header>
 
-        <main className="content">
-          {active === 'resumen' ? (
-            <Summary items={items} />
-          ) : active === 'productos' ? (
-            <Products
-              items={items}
-              movements={movements}
-              productsWarning={productsWarning}
-              onCreate={addProduct}
-              onUpdate={updateProduct}
-              onDelete={removeProduct}
-              onAdjustStock={adjustStock}
-            />
-          ) : active === 'movimientos' ? (
-            <Movements movements={movements} items={items} movementsWarning={movementsWarning} />
-          ) : (
-            <section aria-labelledby="section-title" className="card card--placeholder">
-              <h2 id="section-title">{currentLabel}</h2>
-              <p>Sección en construcción. Próximamente disponible.</p>
-            </section>
-          )}
-        </main>
+          <main className="content">
+            {active === 'resumen' ? (
+              <Summary items={items} />
+            ) : active === 'productos' ? (
+              <Products
+                items={items}
+                movements={movements}
+                productsWarning={productsWarning}
+                onCreate={addProduct}
+                onUpdate={updateProduct}
+                onDelete={removeProduct}
+                onAdjustStock={adjustStock}
+              />
+            ) : active === 'movimientos' ? (
+              <Movements movements={movements} items={items} movementsWarning={movementsWarning} />
+            ) : (
+              <section aria-labelledby="section-title" className="card card--placeholder">
+                <h2 id="section-title">{currentLabel}</h2>
+                <p>Sección en construcción. Próximamente disponible.</p>
+              </section>
+            )}
+          </main>
+        </div>
       </div>
-    </div>
+      <ToastHost />
+    </ToastProvider>
   );
 }
 

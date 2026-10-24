@@ -1,8 +1,9 @@
-import { useMemo, useState } from 'react';
+import { useMemo, useState, useContext } from 'react';
 import { CATEGORIES, getStockStatus } from '../data/products.js';
 import ProductForm from './ProductForm.jsx';
 import ConfirmDelete from './ConfirmDelete.jsx';
 import StockMovementForm from './StockMovementForm.jsx';
+import { ToastContext } from '../context/ToastContext.jsx';
 
 const AVAILABILITY = [
   { id: 'todos', label: 'Todos' },
@@ -15,6 +16,7 @@ function formatPrice(value) {
 }
 
 function Products({ items, movements, productsWarning, onCreate, onUpdate, onDelete, onAdjustStock }) {
+  const { success } = useContext(ToastContext);
   // Alta/edición/eliminación/movimientos delegan en el hook compartido (props).
   // Solo filtros, búsqueda, modales y avisos quedan como estado local.
   const [search, setSearch] = useState('');
@@ -24,7 +26,6 @@ function Products({ items, movements, productsWarning, onCreate, onUpdate, onDel
   const [editingProduct, setEditingProduct] = useState(null);
   const [deletingProduct, setDeletingProduct] = useState(null);
   const [movementProduct, setMovementProduct] = useState(null);
-  const [notice, setNotice] = useState('');
 
   const filtered = useMemo(() => {
     const term = search.trim().toLowerCase();
@@ -44,7 +45,7 @@ function Products({ items, movements, productsWarning, onCreate, onUpdate, onDel
     setCategory('Todas');
     setAvailability('todos');
     setFormOpen(false);
-    setNotice(`"${data.name}" se agregó al inventario.`);
+    success(`"${data.name}" se agregó al inventario.`);
   }
 
   function handleOpenCreate() {
@@ -52,7 +53,6 @@ function Products({ items, movements, productsWarning, onCreate, onUpdate, onDel
     setEditingProduct(null);
     setDeletingProduct(null);
     setMovementProduct(null);
-    setNotice('');
   }
 
   function handleOpenEdit(product) {
@@ -60,7 +60,6 @@ function Products({ items, movements, productsWarning, onCreate, onUpdate, onDel
     setFormOpen(false);
     setDeletingProduct(null);
     setMovementProduct(null);
-    setNotice('');
   }
 
   function handleOpenDelete(product) {
@@ -68,7 +67,6 @@ function Products({ items, movements, productsWarning, onCreate, onUpdate, onDel
     setFormOpen(false);
     setEditingProduct(null);
     setMovementProduct(null);
-    setNotice('');
   }
 
   function handleOpenMovement(product) {
@@ -76,7 +74,6 @@ function Products({ items, movements, productsWarning, onCreate, onUpdate, onDel
     setFormOpen(false);
     setEditingProduct(null);
     setDeletingProduct(null);
-    setNotice('');
   }
 
   async function handleConfirmMovement(productId, type, quantity, reason) {
@@ -86,7 +83,7 @@ function Products({ items, movements, productsWarning, onCreate, onUpdate, onDel
     const current = items.find((item) => item.id === productId);
     const label = type === 'entrada' ? 'Entrada' : 'Salida';
     setMovementProduct(null);
-    setNotice(`${label} de ${quantity} u. registrada en "${current ? current.name : 'el producto'}".`);
+    success(`${label} de ${quantity} u. registrada en "${current ? current.name : 'el producto'}".`);
     return result;
   }
 
@@ -103,7 +100,7 @@ function Products({ items, movements, productsWarning, onCreate, onUpdate, onDel
     const name = deletingProduct.name;
     await onDelete(deletingProduct.id);
     setDeletingProduct(null);
-    setNotice(`"${name}" se eliminó del inventario.`);
+    success(`"${name}" se eliminó del inventario.`);
   }
 
   async function handleUpdate(data, imageFile) {
@@ -111,7 +108,7 @@ function Products({ items, movements, productsWarning, onCreate, onUpdate, onDel
     // Los filtros se mantienen: si el producto editado
     // deja de coincidir, simplemente sale del listado filtrado.
     await onUpdate(editingProduct.id, data, imageFile);
-    setNotice(`"${data.name}" se actualizó correctamente.`);
+    success(`"${data.name}" se actualizó correctamente.`);
     setEditingProduct(null);
   }
 
@@ -138,7 +135,6 @@ function Products({ items, movements, productsWarning, onCreate, onUpdate, onDel
             setEditingProduct(null);
             setDeletingProduct(null);
             setMovementProduct(null);
-            setNotice('');
           }}
         >
           Nuevo producto
@@ -341,11 +337,6 @@ function Products({ items, movements, productsWarning, onCreate, onUpdate, onDel
             {filtered.length} {filtered.length === 1 ? 'producto' : 'productos'}
           </p>
         </>
-      )}
-      {notice && (
-        <p className="products__notice" role="status">
-          {notice}
-        </p>
       )}
       {formOpen && (
         <ProductForm onSubmit={handleCreate} onClose={handleCloseForm} />

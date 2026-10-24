@@ -133,9 +133,6 @@ function App() {
               <p>Sección en construcción. Próximamente disponible.</p>
             </section>
           )}
-          <p className="content__note">
-            Interfaz local de demostración. Todavía no hay autenticación ni conexión con el servidor.
-          </p>
         </main>
       </div>
     </div>

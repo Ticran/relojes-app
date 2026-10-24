@@ -3,6 +3,7 @@ import { CATEGORIES, getStockStatus } from '../data/products.js';
 import ProductForm from './ProductForm.jsx';
 import ConfirmDelete from './ConfirmDelete.jsx';
 import StockMovementForm from './StockMovementForm.jsx';
+import ProductActionsMenu from './ProductActionsMenu.jsx';
 import { ToastContext } from '../context/ToastContext.jsx';
 
 const AVAILABILITY = [
@@ -236,32 +237,12 @@ function Products({ items, movements, productsWarning, onCreate, onUpdate, onDel
                         <span className={`badge badge--${status.id}`}>{status.label}</span>
                       </td>
                       <td>
-                        <div className="actions">
-                          <button
-                            type="button"
-                            className="btn btn--small"
-                            onClick={() => handleOpenMovement(product)}
-                            aria-label={`Registrar movimiento de ${product.name}`}
-                          >
-                            Movimiento
-                          </button>
-                          <button
-                            type="button"
-                            className="btn btn--small"
-                            onClick={() => handleOpenEdit(product)}
-                            aria-label={`Editar ${product.name}`}
-                          >
-                            Editar
-                          </button>
-                          <button
-                            type="button"
-                            className="btn btn--small btn--danger-ghost"
-                            onClick={() => handleOpenDelete(product)}
-                            aria-label={`Eliminar ${product.name}`}
-                          >
-                            Eliminar
-                          </button>
-                        </div>
+                        <ProductActionsMenu
+                          product={product}
+                          onMovement={handleOpenMovement}
+                          onEdit={handleOpenEdit}
+                          onDelete={handleOpenDelete}
+                        />
                       </td>
                     </tr>
                   );
@@ -274,28 +255,36 @@ function Products({ items, movements, productsWarning, onCreate, onUpdate, onDel
               const status = getStockStatus(product.stock);
               return (
                 <li key={product.id} className="card product-card">
-                  <div className="product-cell">
-                    {product.imageUrl ? (
-                      <img
-                        className="product-thumb product-thumb--image"
-                        src={product.imageUrl}
-                        alt={`Imagen de ${product.name}`}
-                        loading="lazy"
-                        onError={(e) => { e.currentTarget.style.display = 'none'; }}
-                      />
-                    ) : (
-                      <span className="product-thumb" aria-hidden="true">
-                        <svg viewBox="0 0 32 32">
-                          <circle cx="16" cy="16" r="10" fill="none" stroke="#B49A64" strokeWidth="2" />
-                          <line x1="16" y1="16" x2="16" y2="10" stroke="#20201E" strokeWidth="2" strokeLinecap="round" />
-                          <line x1="16" y1="16" x2="20" y2="18" stroke="#20201E" strokeWidth="2" strokeLinecap="round" />
-                        </svg>
-                      </span>
-                    )}
-                    <div>
-                      <p className="product-card__name">{product.name}</p>
-                      <p className="product-card__meta">{product.category}</p>
+                  <div className="product-card__header">
+                    <div className="product-cell">
+                      {product.imageUrl ? (
+                        <img
+                          className="product-thumb product-thumb--image"
+                          src={product.imageUrl}
+                          alt={`Imagen de ${product.name}`}
+                          loading="lazy"
+                          onError={(e) => { e.currentTarget.style.display = 'none'; }}
+                        />
+                      ) : (
+                        <span className="product-thumb" aria-hidden="true">
+                          <svg viewBox="0 0 32 32">
+                            <circle cx="16" cy="16" r="10" fill="none" stroke="#B49A64" strokeWidth="2" />
+                            <line x1="16" y1="16" x2="16" y2="10" stroke="#20201E" strokeWidth="2" strokeLinecap="round" />
+                            <line x1="16" y1="16" x2="20" y2="18" stroke="#20201E" strokeWidth="2" strokeLinecap="round" />
+                          </svg>
+                        </span>
+                      )}
+                      <div>
+                        <p className="product-card__name">{product.name}</p>
+                        <p className="product-card__meta">{product.category}</p>
+                      </div>
                     </div>
+                    <ProductActionsMenu
+                      product={product}
+                      onMovement={handleOpenMovement}
+                      onEdit={handleOpenEdit}
+                      onDelete={handleOpenDelete}
+                    />
                   </div>
                   <p className="product-card__line">
                     {formatPrice(product.price)}
@@ -303,32 +292,6 @@ function Products({ items, movements, productsWarning, onCreate, onUpdate, onDel
                   <p className="product-card__line">
                     {product.stock} u. · <span className={`badge badge--${status.id}`}>{status.label}</span>
                   </p>
-                  <div className="actions">
-                    <button
-                      type="button"
-                      className="btn btn--small product-card__edit"
-                      onClick={() => handleOpenMovement(product)}
-                      aria-label={`Registrar movimiento de ${product.name}`}
-                    >
-                      Movimiento
-                    </button>
-                    <button
-                      type="button"
-                      className="btn btn--small product-card__edit"
-                      onClick={() => handleOpenEdit(product)}
-                      aria-label={`Editar ${product.name}`}
-                    >
-                      Editar
-                    </button>
-                    <button
-                      type="button"
-                      className="btn btn--small btn--danger-ghost product-card__edit"
-                      onClick={() => handleOpenDelete(product)}
-                      aria-label={`Eliminar ${product.name}`}
-                    >
-                      Eliminar
-                    </button>
-                  </div>
                 </li>
               );
             })}

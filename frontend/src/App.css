@@ -1061,3 +1061,96 @@
   }
 }
 
+/* ---------- Encabezado de tarjeta móvil ---------- */
+.product-card__header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.product-actions {
+  position: relative;
+  display: inline-block;
+}
+
+.product-actions__trigger {
+  background-color: var(--marfil);
+  border: 1px solid var(--piedra);
+  border-radius: var(--radius);
+  min-width: 36px;
+  min-height: 36px;
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  cursor: pointer;
+  font-size: 1.25rem;
+  line-height: 1;
+  color: var(--carbón);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.15s ease, border-color 0.15s ease;
+}
+
+.product-actions__trigger:hover {
+  background-color: var(--blanco);
+  border-color: var(--dorado-apagado);
+}
+
+.product-actions__trigger:active {
+  background-color: var(--piedra);
+}
+
+.product-actions__trigger:focus-visible {
+  outline: 2px solid var(--dorado-apagado);
+  outline-offset: 1px;
+}
+
+.product-actions__menu {
+  position: fixed;
+  min-width: 210px;
+  background-color: var(--blanco);
+  border: 1px solid var(--piedra);
+  border-radius: var(--radius);
+  box-shadow: 0 8px 24px rgba(32, 32, 30, 0.14);
+  padding: 0.4rem 0;
+  margin: 0;
+  list-style: none;
+  z-index: 1000;
+}
+
+.product-actions__item {
+  display: block;
+  width: 100%;
+  text-align: left;
+  background: transparent;
+  border: none;
+  padding: 0.65rem 1rem;
+  font: inherit;
+  font-size: 0.9rem;
+  color: var(--carbón);
+  cursor: pointer;
+  transition: background-color 0.12s ease;
+}
+
+.product-actions__item:hover,
+.product-actions__item:focus-visible {
+  background-color: var(--marfil);
+  outline: none;
+}
+
+.product-actions__item--danger {
+  color: #8c3226;
+}
+
+.product-actions__item--danger:hover,
+.product-actions__item--danger:focus-visible {
+  background-color: #f3e7e4;
+}
+
+.product-actions__divider {
+  height: 1px;
+  background-color: var(--piedra);
+  margin: 0.35rem 0;
+}

@@ -314,7 +314,6 @@
   border-radius: var(--radius);
   padding: 0.55rem 0.7rem;
   background-color: var(--blanco);
-  min-width: 10rem;
 }
 
 .field__input:focus-visible {
@@ -749,7 +748,18 @@
   border-color: var(--dorado-apagado);
 }
 
-@media (max-width: 700px) {
+@media (max-width: 764px) {
+
+  .products__toolbar {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0.75rem;
+  }
+
+  .products__toolbar .btn {
+    justify-self: start;
+  }
+
   .products__table-wrap {
     display: none;
   }
@@ -761,10 +771,6 @@
   .field,
   .field__input {
     width: 100%;
-  }
-
-  .field__input {
-    min-width: 0;
   }
 
   .form__grid {
@@ -1189,6 +1195,7 @@
 
 /* ---------- Áreas táctiles (dispositivos táctiles) ---------- */
 @media (pointer: coarse) {
+
   .sidebar__close,
   .modal__close,
   .product-actions__trigger,
@@ -1204,6 +1211,7 @@
   .toast__close {
     position: relative;
   }
+
   .toast__close::after {
     content: "";
     position: absolute;
@@ -1215,6 +1223,7 @@
   .toast {
     animation: none;
   }
+
   .sidebar,
   .sidebar__logout,
   .product-actions__trigger {

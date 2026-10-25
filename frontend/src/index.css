@@ -5,6 +5,7 @@
   --marfil: #F7F5F0;
   --carbón: #20201E;
   --dorado-apagado: #B49A64;
+  --dorado-texto: #7A6535;
   --blanco: #FFFFFF;
   --piedra: #E6E1D8;
 
@@ -19,7 +20,7 @@
   color: var(--carbón);
   background-color: var(--marfil);
   font-family: var(--font-sans);
-  font-size: 16px;
+  font-size: 100%;
   line-height: 1.6;
 }
 
@@ -33,10 +34,12 @@
 
 body {
   min-height: 100vh;
+  min-height: 100svh;
 }
 
 #root {
   min-height: 100vh;
+  min-height: 100svh;
   display: flex;
   flex-direction: column;
 }
@@ -54,12 +57,18 @@ img {
 }
 
 a {
-  color: var(--dorado-apagado);
+  color: var(--dorado-texto);
 }
 
 button {
   font: inherit;
   cursor: pointer;
+}
+
+input,
+select,
+textarea {
+  font: inherit;
 }
 
 .container {

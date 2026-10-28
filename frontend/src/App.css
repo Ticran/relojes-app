@@ -199,10 +199,6 @@
   overflow-wrap: anywhere;
 }
 
-.metric--featured .metric__value {
-  font-size: var(--text-kpi-featured);
-}
-
 .summary__note {
   font-size: var(--text-xs);
   color: var(--texto-secundario);

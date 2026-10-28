@@ -45,10 +45,7 @@ function Summary({ items }) {
         </h2>
         <ul className="metrics">
           {metrics.map((metric) => (
-            <li
-              key={metric.id}
-              className={`metric card${metric.id === "inventario" ? " metric--featured" : ""}`}
-            >
+            <li key={metric.id} className="metric card">
               <span className="metric__label">{metric.label}</span>
               <span className="metric__value">{metric.value}</span>
             </li>

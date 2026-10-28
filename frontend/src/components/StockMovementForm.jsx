@@ -22,13 +22,23 @@ function validate(values, currentStock) {
   return { errors, quantity };
 }
 
-function StockMovementForm({ product, onSubmit, onClose }) {
-  const [type, setType] = useState("entrada");
+function StockMovementForm({
+  product = null,
+  products = [],
+  initialType = "entrada",
+  onSubmit,
+  onClose,
+}) {
+  const [productId, setProductId] = useState(product?.id ?? "");
+  const [type, setType] = useState(initialType);
   const [quantity, setQuantity] = useState("");
   const [reason, setReason] = useState("");
   const [errors, setErrors] = useState({});
+  const [productError, setProductError] = useState("");
   const [serverError, setServerError] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const selectedProduct =
+    product ?? products.find((item) => item.id === productId);
   // Guard síncrono: evita reentrada incluso antes del siguiente renderizado.
   const submittingRef = useRef(false);
 
@@ -45,9 +55,14 @@ function StockMovementForm({ product, onSubmit, onClose }) {
     // Guard de reentrada: bloquea dobles envíos antes del siguiente render.
     if (submittingRef.current || isSubmitting) return;
     setServerError("");
+    setProductError("");
+    if (!selectedProduct) {
+      setProductError("Elegí un producto para registrar el movimiento.");
+      return;
+    }
     const { errors: nextErrors, quantity: parsed } = validate(
       { type, quantity },
-      product.stock,
+      selectedProduct.stock,
     );
     setErrors(nextErrors);
     if (Object.keys(nextErrors).length > 0) return;
@@ -56,7 +71,12 @@ function StockMovementForm({ product, onSubmit, onClose }) {
     submittingRef.current = true;
     setIsSubmitting(true);
     try {
-      const result = await onSubmit(product.id, type, parsed, reason.trim());
+      const result = await onSubmit(
+        selectedProduct.id,
+        type,
+        parsed,
+        reason.trim(),
+      );
       if (result.ok === false) {
         setServerError(result.error || "No se pudo registrar el movimiento.");
       }
@@ -88,11 +108,47 @@ function StockMovementForm({ product, onSubmit, onClose }) {
             ✕
           </button>
         </div>
-        <p className="modal__product">
-          <strong>{product.name}</strong>
-          {" · "}Stock actual: {product.stock}
-        </p>
+        {selectedProduct && (
+          <p className="modal__product">
+            <strong>{selectedProduct.name}</strong>
+            {" · "}Stock actual: {selectedProduct.stock}
+          </p>
+        )}
         <form onSubmit={handleSubmit} noValidate>
+          {!product && (
+            <label className="field" htmlFor="movement-product">
+              <span className="field__label">Producto *</span>
+              <select
+                id="movement-product"
+                className="field__input"
+                value={productId}
+                onChange={(event) => {
+                  setProductId(event.target.value);
+                  setProductError("");
+                }}
+                aria-invalid={productError ? "true" : undefined}
+                aria-describedby={
+                  productError ? "movement-product-error" : undefined
+                }
+              >
+                <option value="">Seleccionar producto…</option>
+                {products.map((item) => (
+                  <option key={item.id} value={item.id}>
+                    {item.name} ({item.stock} u.)
+                  </option>
+                ))}
+              </select>
+              {productError && (
+                <span
+                  id="movement-product-error"
+                  className="field__error"
+                  role="alert"
+                >
+                  {productError}
+                </span>
+              )}
+            </label>
+          )}
           <fieldset className="field">
             <legend className="field__label">Tipo de movimiento</legend>
             <div className="radio-row">

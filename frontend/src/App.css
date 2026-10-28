@@ -1037,8 +1037,10 @@
   min-height: 100vh;
   min-height: 100svh;
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
+  gap: var(--space-4);
   padding: var(--space-6);
   background-color: var(--marfil);
 }
@@ -1047,6 +1049,31 @@
   width: 100%;
   max-width: 400px;
   margin: 0;
+}
+
+.login__footer {
+  width: 100%;
+  max-width: 400px;
+  color: var(--texto-secundario);
+  font-size: var(--text-xs);
+  line-height: 1.4;
+  text-align: center;
+}
+
+.login__footer a {
+  color: var(--dorado-texto);
+  font-weight: var(--weight-semibold);
+  text-decoration: none;
+}
+
+.login__footer a:hover {
+  text-decoration: underline;
+}
+
+.login__footer a:focus-visible {
+  outline: var(--focus-width) solid var(--dorado-texto);
+  outline-offset: var(--focus-offset);
+  border-radius: var(--radius-small);
 }
 
 .login__brand {

@@ -121,6 +121,16 @@ export default function Login({ onLogin }) {
           {loading ? "Ingresando..." : "Ingresar"}
         </button>
       </form>
+      <footer className="login__footer">
+        Desarrollado por{" "}
+        <a
+          href="https://github.com/Ticran"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          Cristian Andrada
+        </a>
+      </footer>
     </div>
   );
 }

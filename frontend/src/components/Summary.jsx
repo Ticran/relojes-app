@@ -1,11 +1,11 @@
 // Resumen calculado a partir del inventario real (props).
 // Sin datos ficticios: todo deriva de `items`, incluidos los agotados.
-import { getStockStatus } from '../data/products.js';
+import { getStockStatus } from "../data/products.js";
 
 const MAX_ALERTS = 5;
 
 function formatPrice(value) {
-  return `$ ${value.toLocaleString('es-AR')}`;
+  return `$ ${value.toLocaleString("es-AR")}`;
 }
 
 function Summary({ items }) {
@@ -15,7 +15,7 @@ function Summary({ items }) {
     0,
   );
   const alerts = items.filter(
-    (product) => getStockStatus(product.stock).id !== 'normal',
+    (product) => getStockStatus(product.stock).id !== "normal",
   );
   // Decisión: mantengo 4 tarjetas para no rehacer el diseño; la cuarta pasa
   // de "Pedidos pendientes" (ficticia, sin fuente de datos) a "Agotados"
@@ -23,10 +23,18 @@ function Summary({ items }) {
   const outOfStock = items.filter((product) => product.stock <= 0).length;
 
   const metrics = [
-    { id: 'productos', label: 'Total de productos', value: String(total) },
-    { id: 'inventario', label: 'Valor del inventario', value: formatPrice(inventoryValue) },
-    { id: 'stock-bajo', label: 'Stock bajo o agotado', value: String(alerts.length) },
-    { id: 'agotados', label: 'Agotados', value: String(outOfStock) },
+    { id: "productos", label: "Total de productos", value: String(total) },
+    {
+      id: "inventario",
+      label: "Valor del inventario",
+      value: formatPrice(inventoryValue),
+    },
+    {
+      id: "stock-bajo",
+      label: "Stock bajo o agotado",
+      value: String(alerts.length),
+    },
+    { id: "agotados", label: "Agotados", value: String(outOfStock) },
   ];
 
   return (
@@ -37,7 +45,10 @@ function Summary({ items }) {
         </h2>
         <ul className="metrics">
           {metrics.map((metric) => (
-            <li key={metric.id} className="metric card">
+            <li
+              key={metric.id}
+              className={`metric card${metric.id === "inventario" ? " metric--featured" : ""}`}
+            >
               <span className="metric__label">{metric.label}</span>
               <span className="metric__value">{metric.value}</span>
             </li>
@@ -51,15 +62,18 @@ function Summary({ items }) {
           <p>No hay alertas: todo el inventario tiene stock normal.</p>
         ) : (
           <ul className="alerts">
-            {alerts.slice(0, MAX_ALERTS).map((item) => (
-              <li key={item.id} className="alert">
-                <span className="alert__dot" aria-hidden="true" />
-                <span className="alert__name">{item.name}</span>
-                <span className="alert__stock">
-                  {item.stock} {item.stock === 1 ? 'unidad' : 'unidades'}
-                </span>
-              </li>
-            ))}
+            {alerts.slice(0, MAX_ALERTS).map((item) => {
+              const status = getStockStatus(item.stock).id;
+              return (
+                <li key={item.id} className={`alert alert--${status}`}>
+                  <span className="alert__dot" aria-hidden="true" />
+                  <span className="alert__name">{item.name}</span>
+                  <span className="alert__stock">
+                    {item.stock} {item.stock === 1 ? "unidad" : "unidades"}
+                  </span>
+                </li>
+              );
+            })}
           </ul>
         )}
       </section>

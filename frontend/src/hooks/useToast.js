@@ -1,8 +1,8 @@
 // Hook para administrar notificaciones Toast reutilizables.
 // Independiente de la interfaz visual: solo gestiona estado y temporizadores.
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from "react";
 
-const SUCCESS_TIMEOUT = 3000;
+const SUCCESS_TIMEOUT = 4000;
 const ERROR_TIMEOUT = 5000;
 
 let counter = 0;
@@ -28,7 +28,7 @@ export default function useToast() {
     (type, message) => {
       const id = nextId();
       setToasts((prev) => [...prev, { id, type, message }]);
-      const timeout = type === 'error' ? ERROR_TIMEOUT : SUCCESS_TIMEOUT;
+      const timeout = type === "error" ? ERROR_TIMEOUT : SUCCESS_TIMEOUT;
       timersRef.current[id] = setTimeout(() => {
         dismiss(id);
       }, timeout);
@@ -37,8 +37,8 @@ export default function useToast() {
     [dismiss],
   );
 
-  const success = useCallback((message) => show('success', message), [show]);
-  const error = useCallback((message) => show('error', message), [show]);
+  const success = useCallback((message) => show("success", message), [show]);
+  const error = useCallback((message) => show("error", message), [show]);
 
   // Limpieza de todos los temporizadores al desmontar.
   useEffect(() => {

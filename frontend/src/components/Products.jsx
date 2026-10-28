@@ -1,28 +1,36 @@
-import { useMemo, useState, useContext } from 'react';
-import { CATEGORIES, getStockStatus } from '../data/products.js';
-import ProductForm from './ProductForm.jsx';
-import ConfirmDelete from './ConfirmDelete.jsx';
-import StockMovementForm from './StockMovementForm.jsx';
-import ProductActionsMenu from './ProductActionsMenu.jsx';
-import { ToastContext } from '../context/ToastContext.jsx';
+import { useMemo, useState, useContext } from "react";
+import { CATEGORIES, getStockStatus } from "../data/products.js";
+import ProductForm from "./ProductForm.jsx";
+import ConfirmDelete from "./ConfirmDelete.jsx";
+import StockMovementForm from "./StockMovementForm.jsx";
+import ProductActionsMenu from "./ProductActionsMenu.jsx";
+import { ToastContext } from "../context/ToastContext.jsx";
 
 const AVAILABILITY = [
-  { id: 'todos', label: 'Todos' },
-  { id: 'con-stock', label: 'Con stock' },
-  { id: 'sin-stock', label: 'Sin stock' },
+  { id: "todos", label: "Todos" },
+  { id: "con-stock", label: "Con stock" },
+  { id: "sin-stock", label: "Sin stock" },
 ];
 
 function formatPrice(value) {
-  return `$ ${value.toLocaleString('es-AR')}`;
+  return `$ ${value.toLocaleString("es-AR")}`;
 }
 
-function Products({ items, movements, productsWarning, onCreate, onUpdate, onDelete, onAdjustStock }) {
+function Products({
+  items,
+  movements,
+  productsWarning,
+  onCreate,
+  onUpdate,
+  onDelete,
+  onAdjustStock,
+}) {
   const { success } = useContext(ToastContext);
   // Alta/edición/eliminación/movimientos delegan en el hook compartido (props).
   // Solo filtros, búsqueda, modales y avisos quedan como estado local.
-  const [search, setSearch] = useState('');
-  const [category, setCategory] = useState('Todas');
-  const [availability, setAvailability] = useState('todos');
+  const [search, setSearch] = useState("");
+  const [category, setCategory] = useState("Todas");
+  const [availability, setAvailability] = useState("todos");
   const [formOpen, setFormOpen] = useState(false);
   const [editingProduct, setEditingProduct] = useState(null);
   const [deletingProduct, setDeletingProduct] = useState(null);
@@ -31,9 +39,9 @@ function Products({ items, movements, productsWarning, onCreate, onUpdate, onDel
   const filtered = useMemo(() => {
     const term = search.trim().toLowerCase();
     return items.filter((product) => {
-      if (category !== 'Todas' && product.category !== category) return false;
-      if (availability === 'con-stock' && product.stock <= 0) return false;
-      if (availability === 'sin-stock' && product.stock > 0) return false;
+      if (category !== "Todas" && product.category !== category) return false;
+      if (availability === "con-stock" && product.stock <= 0) return false;
+      if (availability === "sin-stock" && product.stock > 0) return false;
       if (term && !product.name.toLowerCase().includes(term)) return false;
       return true;
     });
@@ -42,9 +50,9 @@ function Products({ items, movements, productsWarning, onCreate, onUpdate, onDel
   async function handleCreate(data, imageFile) {
     await onCreate(data, imageFile);
     // Limpio filtros y búsqueda para que el producto recién creado quede visible.
-    setSearch('');
-    setCategory('Todas');
-    setAvailability('todos');
+    setSearch("");
+    setCategory("Todas");
+    setAvailability("todos");
     setFormOpen(false);
     success(`"${data.name}" se agregó al inventario.`);
   }
@@ -82,9 +90,11 @@ function Products({ items, movements, productsWarning, onCreate, onUpdate, onDel
     const result = await onAdjustStock(productId, type, quantity, reason);
     if (result.ok === false) return result;
     const current = items.find((item) => item.id === productId);
-    const label = type === 'entrada' ? 'Entrada' : 'Salida';
+    const label = type === "entrada" ? "Entrada" : "Salida";
     setMovementProduct(null);
-    success(`${label} de ${quantity} u. registrada en "${current ? current.name : 'el producto'}".`);
+    success(
+      `${label} de ${quantity} u. registrada en "${current ? current.name : "el producto"}".`,
+    );
     return result;
   }
 
@@ -115,13 +125,13 @@ function Products({ items, movements, productsWarning, onCreate, onUpdate, onDel
 
   return (
     <div className="products">
-      {productsWarning === 'corrupt' && (
+      {productsWarning === "corrupt" && (
         <p className="products__storage-warning" role="alert">
-          Los datos guardados en este navegador estaban dañados y se muestran los
-          productos iniciales. Tus datos locales no fueron borrados.
+          Los datos guardados en este navegador estaban dañados y se muestran
+          los productos iniciales. Tus datos locales no fueron borrados.
         </p>
       )}
-      {productsWarning === 'unavailable' && (
+      {productsWarning === "unavailable" && (
         <p className="products__storage-warning" role="alert">
           El almacenamiento local no está disponible: los cambios se conservan
           solo mientras la página permanece abierta.
@@ -216,14 +226,39 @@ function Products({ items, movements, productsWarning, onCreate, onUpdate, onDel
                               src={product.imageUrl}
                               alt={`Imagen de ${product.name}`}
                               loading="lazy"
-                              onError={(e) => { e.currentTarget.style.display = 'none'; }}
+                              onError={(e) => {
+                                e.currentTarget.style.display = "none";
+                              }}
                             />
                           ) : (
                             <span className="product-thumb" aria-hidden="true">
                               <svg viewBox="0 0 32 32">
-                                <circle cx="16" cy="16" r="10" fill="none" stroke="#B49A64" strokeWidth="2" />
-                                <line x1="16" y1="16" x2="16" y2="10" stroke="#20201E" strokeWidth="2" strokeLinecap="round" />
-                                <line x1="16" y1="16" x2="20" y2="18" stroke="#20201E" strokeWidth="2" strokeLinecap="round" />
+                                <circle
+                                  cx="16"
+                                  cy="16"
+                                  r="10"
+                                  fill="none"
+                                  stroke="var(--dorado-texto)"
+                                  strokeWidth="1.5"
+                                />
+                                <line
+                                  x1="16"
+                                  y1="16"
+                                  x2="16"
+                                  y2="10"
+                                  stroke="var(--carbón)"
+                                  strokeWidth="1.5"
+                                  strokeLinecap="round"
+                                />
+                                <line
+                                  x1="16"
+                                  y1="16"
+                                  x2="20"
+                                  y2="18"
+                                  stroke="var(--carbón)"
+                                  strokeWidth="1.5"
+                                  strokeLinecap="round"
+                                />
                               </svg>
                             </span>
                           )}
@@ -234,7 +269,9 @@ function Products({ items, movements, productsWarning, onCreate, onUpdate, onDel
                       <td>{formatPrice(product.price)}</td>
                       <td>{product.stock}</td>
                       <td>
-                        <span className={`badge badge--${status.id}`}>{status.label}</span>
+                        <span className={`badge badge--${status.id}`}>
+                          {status.label}
+                        </span>
                       </td>
                       <td>
                         <ProductActionsMenu
@@ -263,14 +300,39 @@ function Products({ items, movements, productsWarning, onCreate, onUpdate, onDel
                           src={product.imageUrl}
                           alt={`Imagen de ${product.name}`}
                           loading="lazy"
-                          onError={(e) => { e.currentTarget.style.display = 'none'; }}
+                          onError={(e) => {
+                            e.currentTarget.style.display = "none";
+                          }}
                         />
                       ) : (
                         <span className="product-thumb" aria-hidden="true">
                           <svg viewBox="0 0 32 32">
-                            <circle cx="16" cy="16" r="10" fill="none" stroke="#B49A64" strokeWidth="2" />
-                            <line x1="16" y1="16" x2="16" y2="10" stroke="#20201E" strokeWidth="2" strokeLinecap="round" />
-                            <line x1="16" y1="16" x2="20" y2="18" stroke="#20201E" strokeWidth="2" strokeLinecap="round" />
+                            <circle
+                              cx="16"
+                              cy="16"
+                              r="10"
+                              fill="none"
+                              stroke="var(--dorado-texto)"
+                              strokeWidth="1.5"
+                            />
+                            <line
+                              x1="16"
+                              y1="16"
+                              x2="16"
+                              y2="10"
+                              stroke="var(--carbón)"
+                              strokeWidth="1.5"
+                              strokeLinecap="round"
+                            />
+                            <line
+                              x1="16"
+                              y1="16"
+                              x2="20"
+                              y2="18"
+                              stroke="var(--carbón)"
+                              strokeWidth="1.5"
+                              strokeLinecap="round"
+                            />
                           </svg>
                         </span>
                       )}
@@ -290,14 +352,17 @@ function Products({ items, movements, productsWarning, onCreate, onUpdate, onDel
                     {formatPrice(product.price)}
                   </p>
                   <p className="product-card__line">
-                    {product.stock} u. · <span className={`badge badge--${status.id}`}>{status.label}</span>
+                    {product.stock} u. ·{" "}
+                    <span className={`badge badge--${status.id}`}>
+                      {status.label}
+                    </span>
                   </p>
                 </li>
               );
             })}
           </ul>
           <p className="products__count" aria-live="polite">
-            {filtered.length} {filtered.length === 1 ? 'producto' : 'productos'}
+            {filtered.length} {filtered.length === 1 ? "producto" : "productos"}
           </p>
         </>
       )}
@@ -315,14 +380,21 @@ function Products({ items, movements, productsWarning, onCreate, onUpdate, onDel
       {deletingProduct && (
         <ConfirmDelete
           product={deletingProduct}
-          movementCount={movements.filter((movement) => movement.productId === deletingProduct.id).length}
+          movementCount={
+            movements.filter(
+              (movement) => movement.productId === deletingProduct.id,
+            ).length
+          }
           onConfirm={handleConfirmDelete}
           onClose={() => setDeletingProduct(null)}
         />
       )}
       {movementProduct && (
         <StockMovementForm
-          product={items.find((item) => item.id === movementProduct.id) ?? movementProduct}
+          product={
+            items.find((item) => item.id === movementProduct.id) ??
+            movementProduct
+          }
           onSubmit={handleConfirmMovement}
           onClose={() => setMovementProduct(null)}
         />

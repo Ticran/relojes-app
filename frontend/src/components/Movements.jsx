@@ -1,23 +1,23 @@
-import { useMemo, useState } from 'react';
+import { useMemo, useState } from "react";
 
 function formatDateTime(iso) {
-  return new Date(iso).toLocaleString('es-AR', {
-    day: '2-digit',
-    month: '2-digit',
-    year: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit',
+  return new Date(iso).toLocaleString("es-AR", {
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
   });
 }
 
 // Quita tildes/diacríticos para que "cronografo" encuentre "Cronógrafo".
 function stripDiacritics(value) {
-  return value.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+  return value.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
 }
 
 function Movements({ movements, items, movementsWarning }) {
-  const [typeFilter, setTypeFilter] = useState('todos');
-  const [search, setSearch] = useState('');
+  const [typeFilter, setTypeFilter] = useState("todos");
+  const [search, setSearch] = useState("");
 
   const filtered = useMemo(() => {
     const term = stripDiacritics(search.trim().toLowerCase());
@@ -25,8 +25,13 @@ function Movements({ movements, items, movementsWarning }) {
     return [...movements]
       .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
       .filter((movement) => {
-        if (typeFilter !== 'todos' && movement.type !== typeFilter) return false;
-        if (term && !stripDiacritics(movement.productName.toLowerCase()).includes(term)) return false;
+        if (typeFilter !== "todos" && movement.type !== typeFilter)
+          return false;
+        if (
+          term &&
+          !stripDiacritics(movement.productName.toLowerCase()).includes(term)
+        )
+          return false;
         return true;
       })
       .map((movement) => ({
@@ -39,16 +44,11 @@ function Movements({ movements, items, movementsWarning }) {
   // si la API falla, el estado vacío también debe mostrarlo.
   const warningNode = movementsWarning ? (
     <p className="movements__storage-warning" role="alert">
-      {movementsWarning === 'unavailable'
-        ? 'No se pudieron cargar los movimientos desde el servidor.'
-        : 'Los movimientos guardados en este navegador estaban dañados y se muestra un historial inicial. Tus datos locales no fueron borrados.'}
+      {movementsWarning === "unavailable"
+        ? "No se pudieron cargar los movimientos desde el servidor."
+        : "Los movimientos guardados en este navegador estaban dañados y se muestra un historial inicial. Tus datos locales no fueron borrados."}
     </p>
   ) : null;
-
-  function handleClearFilters() {
-    setSearch('');
-    setTypeFilter('todos');
-  }
 
   // Historial realmente vacío: sin movimientos no hay controles que mostrar.
   if (movements.length === 0) {
@@ -93,83 +93,79 @@ function Movements({ movements, items, movementsWarning }) {
       {filtered.length === 0 && (
         <div className="movements__empty">
           <p>Sin coincidencias para la búsqueda actual.</p>
-          <button
-            type="button"
-            className="btn btn--ghost"
-            onClick={handleClearFilters}
-          >
-            Limpiar búsqueda
-          </button>
         </div>
       )}
 
       {filtered.length > 0 && (
-      <div className="movements__table-wrap">
-        <table className="movements__table" aria-label="Historial de movimientos de stock">
-          <thead>
-            <tr>
-              <th>Fecha y hora</th>
-              <th>Producto</th>
-              <th>Tipo</th>
-              <th>Cantidad</th>
-              <th>Motivo</th>
-            </tr>
-          </thead>
-          <tbody>
-            {filtered.map((movement) => (
-              <tr key={movement.id}>
-                <td>{formatDateTime(movement.createdAt)}</td>
-                <td>
-                  {movement.productName}
-                  {!movement.productExists && (
-                    <span className="movements__badge movements__badge--removed">
-                      Producto eliminado
-                    </span>
-                  )}
-                </td>
-                <td>
-                  <span
-                    className={`movements__badge movements__badge--${movement.type}`}
-                  >
-                    {movement.type === 'entrada' ? 'Entrada' : 'Salida'}
-                  </span>
-                </td>
-                <td>{movement.quantity} u.</td>
-                <td>{movement.reason || '—'}</td>
+        <div className="movements__table-wrap">
+          <table
+            className="movements__table"
+            aria-label="Historial de movimientos de stock"
+          >
+            <thead>
+              <tr>
+                <th>Fecha y hora</th>
+                <th>Producto</th>
+                <th>Tipo</th>
+                <th>Cantidad</th>
+                <th>Motivo</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+            </thead>
+            <tbody>
+              {filtered.map((movement) => (
+                <tr key={movement.id}>
+                  <td>{formatDateTime(movement.createdAt)}</td>
+                  <td>
+                    {movement.productName}
+                    {!movement.productExists && (
+                      <span className="movements__badge movements__badge--removed">
+                        Producto eliminado
+                      </span>
+                    )}
+                  </td>
+                  <td>
+                    <span
+                      className={`movements__badge movements__badge--${movement.type}`}
+                    >
+                      {movement.type === "entrada" ? "Entrada" : "Salida"}
+                    </span>
+                  </td>
+                  <td>{movement.quantity} u.</td>
+                  <td>{movement.reason || "—"}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       )}
 
       {filtered.length > 0 && (
-      <div className="movements__cards">
-        {filtered.map((movement) => (
-          <div key={movement.id} className="movements__card">
-            <div className="movements__card__meta">
-              <span>{formatDateTime(movement.createdAt)}</span>
-              <span
-                className={`movements__badge movements__badge--${movement.type}`}
-              >
-                {movement.type === 'entrada' ? 'Entrada' : 'Salida'}
-              </span>
-            </div>
-            <p>
-              <strong>{movement.productName}</strong>
-              {!movement.productExists && (
-                <span className="movements__badge movements__badge--removed">
-                  Producto eliminado
+        <div className="movements__cards">
+          {filtered.map((movement) => (
+            <div key={movement.id} className="movements__card">
+              <div className="movements__card__meta">
+                <span>{formatDateTime(movement.createdAt)}</span>
+                <span
+                  className={`movements__badge movements__badge--${movement.type}`}
+                >
+                  {movement.type === "entrada" ? "Entrada" : "Salida"}
                 </span>
+              </div>
+              <p>
+                <strong>{movement.productName}</strong>
+                {!movement.productExists && (
+                  <span className="movements__badge movements__badge--removed">
+                    Producto eliminado
+                  </span>
+                )}
+              </p>
+              <p className="movements__card__qty">{movement.quantity} u.</p>
+              {movement.reason && (
+                <p className="movements__card__reason">{movement.reason}</p>
               )}
-            </p>
-            <p className="movements__card__qty">{movement.quantity} u.</p>
-            {movement.reason && (
-              <p className="movements__card__reason">{movement.reason}</p>
-            )}
-          </div>
-        ))}
-      </div>
+            </div>
+          ))}
+        </div>
       )}
     </section>
   );

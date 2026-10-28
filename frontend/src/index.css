@@ -2,19 +2,84 @@
 
 :root {
   /* Paleta */
-  --marfil: #F7F5F0;
-  --carbón: #20201E;
-  --dorado-apagado: #B49A64;
-  --dorado-texto: #7A6535;
-  --blanco: #FFFFFF;
-  --piedra: #E6E1D8;
+  --marfil: #f7f5f0;
+  --carbón: #20201e;
+  --dorado: #b08a3e;
+  --dorado-hover: #aa843b;
+  --dorado-active: #a9823b;
+  --dorado-texto: #74551f;
+  --blanco: #ffffff;
+  --piedra: #d7d1c5;
+  --borde-control: #888276;
+  --texto-secundario: #55534e;
+  --texto-desactivado: #7a7770;
+  --superficie-tabla: #f1eee7;
+  --superficie-placeholder: #f3f0e8;
+  --superficie-desactivada: #f0eee8;
+  --stock-normal-fondo: #eef4ea;
+  --stock-normal-texto: #2f5d33;
+  --stock-normal-borde: #cddcc6;
+  --stock-bajo-fondo: #faf3e3;
+  --stock-bajo-texto: #74551f;
+  --stock-bajo-borde: #e2d3a8;
+  --stock-agotado-fondo: #f7e9e7;
+  --stock-agotado-texto: #8c3226;
+  --stock-agotado-borde: #e3b8b1;
+  --superficie-retirada: #f1efe9;
+  --texto-retirado: #5f5a52;
+  --borde-retirado: #d9d4c5;
+  --superficie-aviso: #faf3e3;
+  --texto-aviso: #6b5320;
+  --borde-aviso: #e2d3a8;
+  --rojo-hover: #752920;
+  --rojo-active: #68251d;
+  --overlay: rgba(32, 32, 30, 0.45);
+  --overlay-suave: rgba(32, 32, 30, 0.08);
+  --dorado-transparente: rgba(176, 138, 62, 0.15);
+  --dorado-divisor: rgba(176, 138, 62, 0.25);
 
   /* Tipografía */
-  --font-sans: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-sans:
+    system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial,
+    sans-serif;
+  --text-xs: 0.8125rem;
+  --text-sm: 0.9rem;
+  --text-base: 0.95rem;
+  --text-lg: 1.125rem;
+  --text-section: 1.25rem;
+  --text-page-title: 1.75rem;
+  --text-page-title-compact: 1.3rem;
+  --text-kpi: 1.5rem;
+  --text-kpi-featured: 1.85rem;
+  --text-icon: 1.2rem;
+  --weight-medium: 500;
+  --weight-semibold: 600;
+  --weight-bold: 700;
 
-  /* Medidas */
+  /* Espaciado y medidas */
+  --space-1: 0.25rem;
+  --space-1-5: 0.375rem;
+  --space-2: 0.5rem;
+  --space-2-5: 0.625rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.25rem;
+  --space-6: 1.5rem;
+  --space-8: 2rem;
+  --space-label: 0.375rem;
   --max-width: 1100px;
-  --radius: 6px;
+  --content-width: 960px;
+  --control-height: 2.75rem;
+  --icon-button-size: 2.5rem;
+  --touch-target-size: 2.75rem;
+  --radius: 10px;
+  --radius-small: 8px;
+  --radius-pill: 999px;
+  --focus-width: 2px;
+  --focus-offset: 2px;
+  --shadow-card: 0 2px 6px rgba(32, 32, 30, 0.06);
+  --shadow-float: 0 6px 18px rgba(32, 32, 30, 0.12);
+  --shadow-menu: 0 8px 24px rgba(32, 32, 30, 0.14);
 
   color-scheme: light;
   color: var(--carbón);
@@ -77,4 +142,3 @@ textarea {
   margin: 0 auto;
   padding: 0 1.25rem;
 }
-

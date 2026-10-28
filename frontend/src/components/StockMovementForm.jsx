@@ -1,50 +1,50 @@
 // Modal para registrar una entrada o salida de stock.
 // Valida en el cliente; el hook `adjustStock` vuelve a validar y
 // devuelve { ok, error } como fuente final de verdad.
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from "react";
 
 function validate(values, currentStock) {
   const errors = {};
-  if (values.type !== 'entrada' && values.type !== 'salida') {
-    errors.type = 'Elegí un tipo de movimiento válido.';
+  if (values.type !== "entrada" && values.type !== "salida") {
+    errors.type = "Elegí un tipo de movimiento válido.";
   }
   const quantityText = values.quantity.trim();
   const quantity = Number(quantityText);
-  if (quantityText === '' || Number.isNaN(quantity)) {
-    errors.quantity = 'La cantidad debe ser un número.';
+  if (quantityText === "" || Number.isNaN(quantity)) {
+    errors.quantity = "La cantidad debe ser un número.";
   } else if (!Number.isInteger(quantity)) {
-    errors.quantity = 'La cantidad debe ser un número entero.';
+    errors.quantity = "La cantidad debe ser un número entero.";
   } else if (quantity <= 0) {
-    errors.quantity = 'La cantidad debe ser mayor que cero.';
-  } else if (values.type === 'salida' && quantity > currentStock) {
+    errors.quantity = "La cantidad debe ser mayor que cero.";
+  } else if (values.type === "salida" && quantity > currentStock) {
     errors.quantity = `No hay stock suficiente. Disponible: ${currentStock}.`;
   }
   return { errors, quantity };
 }
 
 function StockMovementForm({ product, onSubmit, onClose }) {
-  const [type, setType] = useState('entrada');
-  const [quantity, setQuantity] = useState('');
-  const [reason, setReason] = useState('');
+  const [type, setType] = useState("entrada");
+  const [quantity, setQuantity] = useState("");
+  const [reason, setReason] = useState("");
   const [errors, setErrors] = useState({});
-  const [serverError, setServerError] = useState('');
+  const [serverError, setServerError] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   // Guard síncrono: evita reentrada incluso antes del siguiente renderizado.
   const submittingRef = useRef(false);
 
   useEffect(() => {
     function handleKey(event) {
-      if (event.key === 'Escape') onClose();
+      if (event.key === "Escape") onClose();
     }
-    document.addEventListener('keydown', handleKey);
-    return () => document.removeEventListener('keydown', handleKey);
+    document.addEventListener("keydown", handleKey);
+    return () => document.removeEventListener("keydown", handleKey);
   }, [onClose]);
 
   async function handleSubmit(event) {
     event.preventDefault();
     // Guard de reentrada: bloquea dobles envíos antes del siguiente render.
     if (submittingRef.current || isSubmitting) return;
-    setServerError('');
+    setServerError("");
     const { errors: nextErrors, quantity: parsed } = validate(
       { type, quantity },
       product.stock,
@@ -58,10 +58,10 @@ function StockMovementForm({ product, onSubmit, onClose }) {
     try {
       const result = await onSubmit(product.id, type, parsed, reason.trim());
       if (result.ok === false) {
-        setServerError(result.error || 'No se pudo registrar el movimiento.');
+        setServerError(result.error || "No se pudo registrar el movimiento.");
       }
     } catch {
-      setServerError('No se pudo registrar el movimiento.');
+      setServerError("No se pudo registrar el movimiento.");
     } finally {
       submittingRef.current = false;
       setIsSubmitting(false);
@@ -79,13 +79,18 @@ function StockMovementForm({ product, onSubmit, onClose }) {
       >
         <div className="modal__head">
           <h2 id="stock-movement-title">Movimiento de stock</h2>
-          <button type="button" className="modal__close" onClick={onClose} aria-label="Cancelar y cerrar">
+          <button
+            type="button"
+            className="modal__close"
+            onClick={onClose}
+            aria-label="Cancelar y cerrar"
+          >
             ✕
           </button>
         </div>
         <p className="modal__product">
           <strong>{product.name}</strong>
-          {' · '}Stock actual: {product.stock}
+          {" · "}Stock actual: {product.stock}
         </p>
         <form onSubmit={handleSubmit} noValidate>
           <fieldset className="field">
@@ -96,24 +101,26 @@ function StockMovementForm({ product, onSubmit, onClose }) {
                   type="radio"
                   name="movement-type"
                   value="entrada"
-                  checked={type === 'entrada'}
-                  onChange={() => setType('entrada')}
+                  checked={type === "entrada"}
+                  onChange={() => setType("entrada")}
                 />
-                Entrada
+                <span>Entrada</span>
               </label>
               <label className="radio">
                 <input
                   type="radio"
                   name="movement-type"
                   value="salida"
-                  checked={type === 'salida'}
-                  onChange={() => setType('salida')}
+                  checked={type === "salida"}
+                  onChange={() => setType("salida")}
                 />
-                Salida
+                <span>Salida</span>
               </label>
             </div>
             {errors.type && (
-              <span className="field__error" role="alert">{errors.type}</span>
+              <span className="field__error" role="alert">
+                {errors.type}
+              </span>
             )}
           </fieldset>
           <label className="field" htmlFor="movement-quantity">
@@ -127,11 +134,17 @@ function StockMovementForm({ product, onSubmit, onClose }) {
               className="field__input"
               value={quantity}
               onChange={(event) => setQuantity(event.target.value)}
-              aria-invalid={errors.quantity ? 'true' : undefined}
-              aria-describedby={errors.quantity ? 'movement-quantity-error' : undefined}
+              aria-invalid={errors.quantity ? "true" : undefined}
+              aria-describedby={
+                errors.quantity ? "movement-quantity-error" : undefined
+              }
             />
             {errors.quantity && (
-              <span id="movement-quantity-error" className="field__error" role="alert">
+              <span
+                id="movement-quantity-error"
+                className="field__error"
+                role="alert"
+              >
                 {errors.quantity}
               </span>
             )}
@@ -149,7 +162,9 @@ function StockMovementForm({ product, onSubmit, onClose }) {
             />
           </label>
           {serverError && (
-            <p className="field__error" role="alert">{serverError}</p>
+            <p className="field__error" role="alert">
+              {serverError}
+            </p>
           )}
           <div className="form__actions">
             <button type="button" className="btn btn--ghost" onClick={onClose}>

@@ -117,7 +117,7 @@ export default function Login({ onLogin }) {
           />
         </label>
         {error && <p className="login__error">{error}</p>}
-        <button type="submit" className="btn" disabled={loading}>
+        <button type="submit" className="btn btn--login" disabled={loading}>
           {loading ? "Ingresando..." : "Ingresar"}
         </button>
       </form>

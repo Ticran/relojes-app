@@ -238,7 +238,7 @@ function Products({
                                   cy="16"
                                   r="10"
                                   fill="none"
-                                  stroke="var(--dorado-texto)"
+                                  stroke="var(--color-accent-text)"
                                   strokeWidth="1.5"
                                 />
                                 <line
@@ -246,7 +246,7 @@ function Products({
                                   y1="16"
                                   x2="16"
                                   y2="10"
-                                  stroke="var(--carbón)"
+                                  stroke="var(--color-text)"
                                   strokeWidth="1.5"
                                   strokeLinecap="round"
                                 />
@@ -255,7 +255,7 @@ function Products({
                                   y1="16"
                                   x2="20"
                                   y2="18"
-                                  stroke="var(--carbón)"
+                                  stroke="var(--color-text)"
                                   strokeWidth="1.5"
                                   strokeLinecap="round"
                                 />
@@ -312,7 +312,7 @@ function Products({
                               cy="16"
                               r="10"
                               fill="none"
-                              stroke="var(--dorado-texto)"
+                              stroke="var(--color-accent-text)"
                               strokeWidth="1.5"
                             />
                             <line
@@ -320,7 +320,7 @@ function Products({
                               y1="16"
                               x2="16"
                               y2="10"
-                              stroke="var(--carbón)"
+                              stroke="var(--color-text)"
                               strokeWidth="1.5"
                               strokeLinecap="round"
                             />
@@ -329,7 +329,7 @@ function Products({
                               y1="16"
                               x2="20"
                               y2="18"
-                              stroke="var(--carbón)"
+                              stroke="var(--color-text)"
                               strokeWidth="1.5"
                               strokeLinecap="round"
                             />

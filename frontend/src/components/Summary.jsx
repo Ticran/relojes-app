@@ -167,13 +167,13 @@ function Summary({
                       cy="12"
                       r="9"
                       fill="none"
-                      stroke="var(--stock-normal-texto)"
+                      stroke="var(--color-stock-ok-text)"
                       strokeWidth="1.7"
                     />
                     <path
                       d="m8 12.2 2.5 2.5L16.5 9"
                       fill="none"
-                      stroke="var(--stock-normal-texto)"
+                      stroke="var(--color-stock-ok-text)"
                       strokeWidth="1.7"
                       strokeLinecap="round"
                       strokeLinejoin="round"

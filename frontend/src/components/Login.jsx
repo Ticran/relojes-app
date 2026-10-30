@@ -34,16 +34,16 @@ export default function Login({ onLogin }) {
               cy="16"
               r="13"
               fill="none"
-              stroke="var(--dorado)"
+              stroke="var(--color-accent)"
               strokeWidth="2"
             />
-            <circle cx="16" cy="16" r="1.6" fill="var(--dorado)" />
+            <circle cx="16" cy="16" r="1.6" fill="var(--color-accent)" />
             <line
               x1="16"
               y1="16"
               x2="16"
               y2="8.5"
-              stroke="var(--carbón)"
+              stroke="var(--color-text)"
               strokeWidth="2"
               strokeLinecap="round"
             />
@@ -52,7 +52,7 @@ export default function Login({ onLogin }) {
               y1="16"
               x2="21"
               y2="18.5"
-              stroke="var(--carbón)"
+              stroke="var(--color-text)"
               strokeWidth="2"
               strokeLinecap="round"
             />
@@ -61,7 +61,7 @@ export default function Login({ onLogin }) {
               y1="4"
               x2="16"
               y2="6.5"
-              stroke="var(--dorado)"
+              stroke="var(--color-accent)"
               strokeWidth="1.6"
               strokeLinecap="round"
             />
@@ -70,7 +70,7 @@ export default function Login({ onLogin }) {
               y1="25.5"
               x2="16"
               y2="28"
-              stroke="var(--dorado)"
+              stroke="var(--color-accent)"
               strokeWidth="1.6"
               strokeLinecap="round"
             />
@@ -79,7 +79,7 @@ export default function Login({ onLogin }) {
               y1="16"
               x2="6.5"
               y2="16"
-              stroke="var(--dorado)"
+              stroke="var(--color-accent)"
               strokeWidth="1.6"
               strokeLinecap="round"
             />
@@ -88,7 +88,7 @@ export default function Login({ onLogin }) {
               y1="16"
               x2="28"
               y2="16"
-              stroke="var(--dorado)"
+              stroke="var(--color-accent)"
               strokeWidth="1.6"
               strokeLinecap="round"
             />
